@@ -23,9 +23,6 @@
 #include <ctime>
 #include <cmath>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
@@ -63,7 +60,6 @@ GLXContext glc;
 
 //-----------------------------------------------------------------------------
 //Setup timers
-bool firstTime = true;
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -169,12 +165,13 @@ int main(void)
     initXWindows();
     init_opengl();
     Game game;
-    //init(&game);
     srand(time(NULL));
     int done=0;
     
     
     while (done != 1) {
+        Rect r;
+        //add Start Menu Background
         while (XPending(dpy)) {
             XEvent e;
             XNextEvent(dpy, &e);
@@ -182,17 +179,24 @@ int main(void)
             check_mouse(&e);
             done = check_keys(&e);
 	    if(done == 2){
-		std::cout << "Help Menu" << std::endl;
-
+		    std::cout << "Help Menu" << std::endl;
+            r.bot = yres - 100;
+            r.left = 600;
+            r.center = 0;
+            ggprint16(&r, 16, 0x00ffff00, "This is the HELP menu");
+            ggprint16(&r, 16, 0x00ffff00, "Press Q to start game");
 	    }
+        if(done == 3){
+            init(&game);
+            done = 1;
+        }
 	}
 	glXSwapBuffers(dpy, win);
     }
     done = 0;
     clock_gettime(CLOCK_REALTIME, &timePause);
     clock_gettime(CLOCK_REALTIME, &timeStart);
-    init(&game);
-    while (!done) {
+    while (done != 1 ) {
         while (XPending(dpy)) {
             XEvent e;
             XNextEvent(dpy, &e);
@@ -775,12 +779,14 @@ void render(Game *g)
     ggprint8b(&r, 16, 0x00ffff00, "time: %i", g->aTimer);
     //-------------------------------------------------------------------------
     //Draw the ship
+    /* Ship Super Mode Color Flashing
     int x,y,z;
     x = random(3);
     y = random(3);
     z = random(3);
     glColor3f(x,y,z);
-    //glColor3fv(g->ship.color);
+    */
+    glColor3fv(g->ship.color);
     glPushMatrix();
     glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
     glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
