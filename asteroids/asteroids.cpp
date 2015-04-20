@@ -149,7 +149,6 @@ struct Game {
     }
 };
 
-int score = 0;
 int keys[65536];
 
 //function prototypes
@@ -170,11 +169,29 @@ int main(void)
     initXWindows();
     init_opengl();
     Game game;
-    init(&game);
+    //init(&game);
     srand(time(NULL));
+    int done=0;
+    
+    
+    while (done != 1) {
+        while (XPending(dpy)) {
+            XEvent e;
+            XNextEvent(dpy, &e);
+            check_resize(&e);
+            check_mouse(&e);
+            done = check_keys(&e);
+	    if(done == 2){
+		std::cout << "Help Menu" << std::endl;
+
+	    }
+	}
+	glXSwapBuffers(dpy, win);
+    }
+    done = 0;
     clock_gettime(CLOCK_REALTIME, &timePause);
     clock_gettime(CLOCK_REALTIME, &timeStart);
-    int done=0;
+    init(&game);
     while (!done) {
         while (XPending(dpy)) {
             XEvent e;
@@ -183,7 +200,6 @@ int main(void)
             check_mouse(&e);
             done = check_keys(&e);
         }
-	//ADD MENU HERE
         clock_gettime(CLOCK_REALTIME, &timeCurrent);
         timeSpan = timeDiff(&timeStart, &timeCurrent);
         timeCopy(&timeStart, &timeCurrent);
@@ -282,11 +298,13 @@ void init_opengl(void)
     glDisable(GL_CULL_FACE);
     //
     //Clear the screen to black
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
 }
+
 
 void check_resize(XEvent *e)
 {
@@ -400,10 +418,10 @@ int check_keys(XEvent *e)
     switch(key) {
         case XK_Escape:
             return 1;
-        case XK_f:
-            break;
-        case XK_s:
-            break;
+        case XK_h:
+            return 2;
+        case XK_q:
+            return 3;
         case XK_Down:
             break;
         case XK_equal:
@@ -754,12 +772,7 @@ void render(Game *g)
     ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
     ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
     ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
-    if(g->nasteroids == 0) {
-        score = g->aTimer;
-        ggprint8b(&r, 16, 0x00ffff00, "time: %i", score);
-    } else {
-        ggprint8b(&r, 16, 0x00ffff00, "time: %i", g->aTimer);
-    }
+    ggprint8b(&r, 16, 0x00ffff00, "time: %i", g->aTimer);
     //-------------------------------------------------------------------------
     //Draw the ship
     int x,y,z;
