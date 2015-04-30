@@ -41,12 +41,9 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
-#include "solidSphere.h"
 extern "C" {
 #include "fonts.h"
 }
-
-using namespace std;
 
 //defined types
 typedef float Flt;
@@ -141,7 +138,6 @@ struct Asteroid {
 
 	// constructor
 	Asteroid() {
-		//solidSphere sph(1, 16, 32);
 		prev = NULL;
 		next = NULL;
 	}
@@ -321,8 +317,8 @@ void init(Game *g) {
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
 		for (int i=0; i<a->nverts; i++) {
-			a->vert[i][0] = sin(angle) *50 ;// (r2 + rnd() * a->radius);
-			a->vert[i][1] = cos(angle) * 50;//(r2 + rnd() * a->radius);
+			a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+			a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 			angle += inc;
 		}
 		a->pos[0] = (Flt)(rand() % xres);
@@ -448,25 +444,20 @@ void deleteBullet(Game *g, Bullet *node)
 
 void deleteAsteroid(Game *g, Asteroid *node)
 {
-	if(node ==NULL)
-		return;
-	else{
-		//remove a node from linked list
-		if (g->ahead == node and g->ahead->next == NULL){delete g->ahead;g->ahead = NULL;}
-		if (node->next != NULL and node->prev !=NULL){
-			node->next->prev = node->prev;
-			node->prev->next = node->next;
-		}else{
-			if(node->next == NULL and node != g->ahead)
-				node->prev->next = NULL;
-			else {
-					g->ahead = node->next;
-					node->next->prev = NULL;
-			}
+	//remove a node from linked list
+	if (g->ahead == node and g->ahead->next = NULL){delete g->ahead;g->ahead = NULL;}
+	if (node->next != NULL and node->prev !=NULL){
+		node->next->prev = node->prev;
+		node->prev->next = node->next;
+	}else{
+		if(node->next == NULL and node != g->ahead)
+			node->prev->next = NULL;
+		else {
+				g->ahead = node->next;
+			node->next->prev = NULL;
 		}
-		delete node;
-		node = NULL;
 	}
+	delete node;
 }
 
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
@@ -751,30 +742,18 @@ void render(Game *g)
 		Flt xdir = cos(rad);
 		Flt ydir = sin(rad);
 		Flt xs,ys,xe,ye,r;
-		for (i=0; i<16; i++) {
 		glBegin(GL_LINES);
+		for (i=0; i<16; i++) {
 			xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
 			ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-			r = rnd()*80.0+80.0;
-
+			r = rnd()*40.0+40.0;
 			xe = -xdir * r + rnd() * 18.0 - 9.0;
 			ye = -ydir * r + rnd() * 18.0 - 9.0;
-			if(r < 26.0) {
-				glColor3f(.128, 0.781, .878);
-			} else {
-			if(r >26 && r <= 52) {
-				glColor3f(.128, 0.835, .128);
-			}
-			else {
-				glColor3f(.972, 0.113, .074);
-			
-			}
-			}
+			glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
 			glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
 			glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
-			glEnd();
-			cout << r<<endl;
 		}
+		glEnd();
 	}
 	//-------------------------------------------------------------------------
 	//Draw the asteroids
@@ -786,12 +765,10 @@ void render(Game *g)
 			glPushMatrix();
 			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_TRIANGLES);
+			glBegin(GL_LINE_LOOP);
 			//Log("%i verts\n",a->nverts);
-			for (int j=0; j<a->nverts-2; j++) {
+			for (int j=0; j<a->nverts; j++) {
 				glVertex2f(a->vert[j][0], a->vert[j][1]);
-				glVertex2f(a->vert[j+1][0], a->vert[j+1][1]);
-				glVertex2f(a->vert[7][0], a->vert[7][1]);
 			}
 			glEnd();
 			//glBegin(GL_LINES);
