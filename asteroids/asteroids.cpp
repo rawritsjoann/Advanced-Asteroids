@@ -1,6 +1,3 @@
-//THIS IS DIFFERENT
-
-
 //cs335 Spring 2015
 //
 //program: AdvancedAsteroidz
@@ -11,17 +8,11 @@
 // ----------------------
 // welcome screen
 // menu
-// multiple simultaneous key-press
 // control of bullet launch point
 // score keeping
 // levels of difficulty
 // sound
 // use of textures
-// 
-//
-//==================================
-//Testing Pull Request
-//++++++++++++++++++++++++++++++++++
 //
 #include <iostream>
 #include <cstdlib>
