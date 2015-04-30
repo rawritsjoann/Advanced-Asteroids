@@ -170,11 +170,11 @@ int main(void)
 
     while (done != 1) {
 	Rect r;
-	r.bot = yres - 500;
-	r.left = 500;
+	r.bot = yres - 100;
+	r.left = 600;
 	r.center = 0;
-	ggprint16(&r, 16, 0x00ffff00, "ADVANCED ASTEROIDS");
-	ggprint16(&r, 16, 0x00ffff00, "Press H for Help or S to Start Playing");
+	ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
+	ggprint16(&r, 36, 0x00ffff00, "Press H for Help or S to Start Playing");
 	//add Start Menu Background
 	while (XPending(dpy)) {
 	    XEvent e;
@@ -184,15 +184,15 @@ int main(void)
 	    done = check_keys(&e);
 	    if(done == 2){
 		std::cout << "Help Menu" << std::endl;
-		r.bot = yres - 100;
-		r.left = 600;
-		r.center = 0;
+		r.bot = yres - 300;
+		r.left = 400;
 		ggprint16(&r, 16, 0x00ffff00, "This is the HELP menu");
 		ggprint16(&r, 16, 0x00ffff00, "Press S to start game");
 	    }
 	    if(done == 3){
 		init(&game);
 		done = 1;
+		break;
 	    }
 	}
 	glXSwapBuffers(dpy, win);
@@ -200,7 +200,7 @@ int main(void)
     done = 0;
     clock_gettime(CLOCK_REALTIME, &timePause);
     clock_gettime(CLOCK_REALTIME, &timeStart);
-    while (done != 1 ) {
+    while (done != 1) {
 	Rect rPause;
 	while (XPending(dpy)) {
 	    XEvent e;
@@ -223,7 +223,7 @@ int main(void)
 	}
 	else{
 	    rPause.bot = yres-100;
-	    rPause.left = 600;
+	    rPause.left = 400;
 	    ggprint16(&rPause, 16, 0x00ffff00, "This is the Pause menu");
 	    ggprint16(&rPause, 16, 0x00ffff00, "Press Q to start game");
 	}
@@ -355,9 +355,9 @@ void init(Game *g) {
 	a->pos[2] = 0.0f;
 	a->angle = 0.0;
 	a->rotate = rnd() * 4.0 - 2.0;
-	a->color[0] = 0.8;
-	a->color[1] = 0.8;
-	a->color[2] = 0.7;
+	a->color[0] = 0.4 + (j * 0.02);
+	a->color[1] = 0.4 + (j * 0.02);
+	a->color[2] = 0.3 + (j * 0.02);
 	a->vel[0] = (Flt)(rnd()*2.0-1.0);
 	a->vel[1] = (Flt)(rnd()*2.0-1.0);
 	std::cout << "asteroid" << std::endl;
@@ -506,7 +506,7 @@ void resizeAsteroid(Asteroid *a)
 	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 	    angle += inc;
 	}
-	a->color[0] = 1.0;
+	a->color[0] = 0.0;
 	a->color[1] = 0.0;
 	a->color[2] = 0.0;
     }
@@ -848,6 +848,11 @@ void render(Game *g)
 		resizeAsteroid(a);
 	    }
 	    //Log("draw asteroid...\n");
+	    //float x,y,z;
+	    //x = random(3);
+	    //y = random(3);
+	    //z = random(3);
+	    //glColor3f(x,y,z);
 	    glColor3fv(a->color);
 	    glPushMatrix();
 	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
