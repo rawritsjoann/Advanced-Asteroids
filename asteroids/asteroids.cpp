@@ -832,13 +832,11 @@ void render(Game *g)
 	    xe = -xdir * r + rnd() * 18.0 - 9.0;
 	    ye = -ydir * r + rnd() * 18.0 - 9.0;
 	    glColor3f(rnd()*1.0f, rnd()*4.0f, rnd()*6.0f);
-        //test change
 	    glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
 	    glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
 	}
 	glEnd();
     }
-    //random change
     //get the game time
 
     //-------------------------------------------------------------------------
