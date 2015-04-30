@@ -8,7 +8,7 @@ asteroids: asteroids.c ppm.c log.c
 	gcc $(CFLAGS) asteroids.c log.c -Wall -Wextra $(LFLAGS) -o asteroids
 
 acpp: asteroids.cpp ppm.c log.c
-	g++ $(CFLAGS) asteroids.cpp log.c -Wall -Wextra $(LFLAGS) -o acpp
+	g++ $(CFLAGS) ppm.c asteroids.cpp log.c -Wall -Wextra $(LFLAGS) -o acpp
 
 clean:
 	rm -f asteroids acpp

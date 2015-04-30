@@ -77,6 +77,9 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 int xres=1250, yres=900;
 
+Ppmimage *bgImage=NULL;
+GLuint bgTexture;
+
 struct Ship {
     Vec dir;
     Vec pos;
@@ -320,6 +323,15 @@ void init_opengl(void)
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
+    //load image background
+    bgImage = ppm6GetImage((char*)"AA_background.ppm");
+    glGenTextures(1, &bgTexture);
+    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    bgImage->width, bgImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
 }
 
 
@@ -776,12 +788,22 @@ void physics(Game *g)
 
 void render(Game *g)
 {
+    //-----------------------------------------
+    //Draw background
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
+    glEnd();
+    
     struct timespec at;
     clock_gettime(CLOCK_REALTIME, &at);
     g->aTimer = timeDiff(&g->asteroidTimer, &at);
     //float wid;
     Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
     //
     r.bot = yres - 20;
     r.left = 10;
