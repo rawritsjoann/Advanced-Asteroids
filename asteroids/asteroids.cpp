@@ -811,8 +811,8 @@ void render(Game *g)
     glVertex2f(  0.0f, 20.0f);
     glVertex2f( 12.0f, -10.0f);
     glEnd();
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_POINTS);
+    //glColor3f(1.0f, 0.0f, 0.0f);
+    //glBegin(GL_POINTS);
     glVertex2f(0.0f, 0.0f);
     glEnd();
     glPopMatrix();
@@ -828,10 +828,10 @@ void render(Game *g)
 	for (i=0; i<16; i++) {
 	    xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
 	    ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-	    r = rnd()*40.0+40.0;
+	    r = rnd()*50.0+50.0;
 	    xe = -xdir * r + rnd() * 18.0 - 9.0;
 	    ye = -ydir * r + rnd() * 18.0 - 9.0;
-	    glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
+	    glColor3f(rnd()*1.0f, rnd()*4.0f, rnd()*6.0f);
 	    glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
 	    glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
 	}
@@ -859,8 +859,8 @@ void render(Game *g)
 	    }
 	    glEnd();
 	    glPopMatrix();
-	    glColor3f(1.0f, 0.0f, 0.0f);
-	    glBegin(GL_POINTS);
+	    //glColor3f(1.0f, 0.0f, 0.0f);
+	    //glBegin(GL_POINTS);
 	    glVertex2f(a->pos[0], a->pos[1]);
 	    glEnd();
 	    a = a->next;
