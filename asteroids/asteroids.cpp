@@ -1,20 +1,32 @@
 //cs335 Spring 2015
 //
-//program: AdvancedAsteroidz
-//author:  Drew, Michael, JoAnn, AJ
-//date:    2015
+//program: asteroids.cpp
+//author:  Gordon Griesel
+//date:    2014
+//mod spring 2015: added constructors
+//
+//This program is a game starting point for 335
 //
 // Possible requirements:
 // ----------------------
 // welcome screen
 // menu
+// multiple simultaneous key-press
+// show exhaust for thrusting
+// move the asteroids
+// collision detection for bullet on asteroid
+// collision detection for asteroid on ship
 // control of bullet launch point
+// life span for each bullet
+// cleanup the bullets that miss a target
+// split asteroids into pieces when blasted
+// random generation of new asteroids
 // score keeping
 // levels of difficulty
 // sound
 // use of textures
+// 
 //
-//CHANGES CHANGES
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -22,13 +34,19 @@
 #include <ctime>
 #include <cmath>
 #include <X11/Xlib.h>
+//#include <X11/Xutil.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
+#include "solidSphere.h"
 extern "C" {
 #include "fonts.h"
 }
+
+using namespace std;
 
 //defined types
 typedef float Flt;
@@ -123,7 +141,10 @@ struct Asteroid {
     float color[3];
     struct Asteroid *prev;
     struct Asteroid *next;
+
+    // constructor
     Asteroid() {
+	//solidSphere sph(1, 16, 32);
 	prev = NULL;
 	next = NULL;
     }
@@ -138,6 +159,8 @@ struct Game {
     int aTimer;
     struct timespec bulletTimer;
     struct timespec asteroidTimer;
+
+    // constructor
     Game() {
 	ahead = NULL;
 	bhead = NULL;
@@ -146,6 +169,7 @@ struct Game {
 	aTimer = 0;
     }
 };
+
 
 int keys[65536];
 
@@ -173,11 +197,11 @@ int main(void)
 
     while (done != 1) {
 	Rect r;
-	r.bot = yres - 500;
-	r.left = 500;
+	r.bot = yres - 100;
+	r.left = 600;
 	r.center = 0;
-	ggprint16(&r, 16, 0x00ffff00, "ADVANCED ASTEROIDS");
-	ggprint16(&r, 16, 0x00ffff00, "Press H for Help or S to Start Playing");
+	ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
+	ggprint16(&r, 36, 0x00ffff00, "Press H for Help or S to Start Playing");
 	//add Start Menu Background
 	while (XPending(dpy)) {
 	    XEvent e;
@@ -187,9 +211,8 @@ int main(void)
 	    done = check_keys(&e);
 	    if(done == 2){
 		std::cout << "Help Menu" << std::endl;
-		r.bot = yres - 100;
-		r.left = 600;
-		r.center = 0;
+		r.bot = yres - 300;
+		r.left = 400;
 		ggprint16(&r, 16, 0x00ffff00, "This is the HELP menu");
 		ggprint16(&r, 16, 0x00ffff00, "Press S to start game");
 	    }
@@ -203,7 +226,7 @@ int main(void)
     done = 0;
     clock_gettime(CLOCK_REALTIME, &timePause);
     clock_gettime(CLOCK_REALTIME, &timeStart);
-    while (done != 1 ) {
+    while (done != 1) {
 	Rect rPause;
 	while (XPending(dpy)) {
 	    XEvent e;
@@ -226,7 +249,7 @@ int main(void)
 	}
 	else{
 	    rPause.bot = yres-100;
-	    rPause.left = 600;
+	    rPause.left = 400;
 	    ggprint16(&rPause, 16, 0x00ffff00, "This is the Pause menu");
 	    ggprint16(&rPause, 16, 0x00ffff00, "Press Q to start game");
 	}
@@ -247,7 +270,7 @@ void set_title(void)
 {
     //Set the window title bar.
     XMapWindow(dpy, win);
-    XStoreName(dpy, win, "CS335 - Advanced Asteroidz");
+    XStoreName(dpy, win, "CS335 - Asteroids template");
 }
 
 void setup_screen_res(const int w, const int h)
@@ -275,16 +298,11 @@ void initXWindows(void)
     } 
     Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
     swa.colormap = cmap;
-    swa.event_mask = ExposureMask 
-	| KeyPressMask 
-	| KeyReleaseMask 
-	| StructureNotifyMask 
-	| SubstructureNotifyMask;
-
+    swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+	StructureNotifyMask | SubstructureNotifyMask;
     win = XCreateWindow(dpy, root, 0, 0, xres, yres, 0,
 	    vi->depth, InputOutput, vi->visual,
 	    CWColormap | CWEventMask, &swa);
-
     set_title();
     glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
     glXMakeCurrent(dpy, win, glc);
@@ -318,8 +336,7 @@ void init_opengl(void)
     glDisable(GL_CULL_FACE);
     //
     //Clear the screen to black
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
@@ -333,7 +350,6 @@ void init_opengl(void)
 	    bgImage->width, bgImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
 }
-
 
 void check_resize(XEvent *e)
 {
@@ -367,9 +383,9 @@ void init(Game *g) {
 	a->pos[2] = 0.0f;
 	a->angle = 0.0;
 	a->rotate = rnd() * 4.0 - 2.0;
-	a->color[0] = 0.8;
-	a->color[1] = 0.8;
-	a->color[2] = 0.7;
+	a->color[0] = 0.4 + (j * 0.02);
+	a->color[1] = 0.4 + (j * 0.02);
+	a->color[2] = 0.3 + (j * 0.02);
 	a->vel[0] = (Flt)(rnd()*2.0-1.0);
 	a->vel[1] = (Flt)(rnd()*2.0-1.0);
 	std::cout << "asteroid" << std::endl;
@@ -485,26 +501,26 @@ void deleteBullet(Game *g, Bullet *node)
 
 void deleteAsteroid(Game *g, Asteroid *node)
 {
-    //remove a node from linked list
-    if (node->prev == NULL){
-	if ( node->next == NULL) {
-	    g->ahead = NULL;
-	} else {
-	    node->next->prev = NULL;
-	    g->ahead = node->next;
-	}
-    } else {
-	if (node->next == NULL) {
-	    node->prev->next = NULL;
-	} else {
-	    node->prev->next = node->next;
+    if(node ==NULL)
+	return;
+    else{
+	//remove a node from linked list
+	if (g->ahead == node and g->ahead->next == NULL){delete g->ahead;g->ahead = NULL;}
+	if (node->next != NULL and node->prev !=NULL){
 	    node->next->prev = node->prev;
+	    node->prev->next = node->next;
+	}else{
+	    if(node->next == NULL and node != g->ahead)
+		node->prev->next = NULL;
+	    else {
+		g->ahead = node->next;
+		node->next->prev = NULL;
+	    }
 	}
+	delete node;
+	node = NULL;
     }
-    delete node;
-    node = NULL;
 }
-
 void resizeAsteroid(Asteroid *a)
 {
     if( a->radius < 40 && a->radius > 20 ) {
@@ -542,9 +558,9 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
     ta->pos[2] = 0.0f;
     ta->angle = 0.0;
     ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
-    ta->color[0] = 0.8;
-    ta->color[1] = 0.8;
-    ta->color[2] = 0.7;
+    //ta->color[0] = 0.8;
+    //ta->color[1] = 0.8;
+    //ta->color[2] = 0.7;
     ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
     ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
     //std::cout << "frag" << std::endl;
@@ -572,26 +588,22 @@ void physics(Game *g)
 
     Asteroid *a = g->ahead;
 
-    while (a){
+    while(a) {
 
-	//Ship collision with Asteroid
 	d0 = g->ship.pos[0] - a->pos[0];
 	d1 = g->ship.pos[1] - a->pos[1];
 	dist = (d0*d0 + d1*d1);
-	if( dist < (a->radius * a->radius)) {
-	    g->ship.pos[0] = a->pos[0] + d0*1.5;
-	    g->ship.pos[1] = a->pos[1] + d1*1.5;
+	if(dist < (a->radius * a->radius)) {
+	    g->ship.pos[0] = a->pos[0] + d0 * 1.5;
+	    g->ship.pos[1] = a->pos[1] + d1 * 1.5;
 	    g->ship.vel[0] *= -0.5f;
 	    g->ship.vel[1] *= -0.5f;
 
-	    //bouncy astroids
 	    a->vel[0] += g->ship.vel[0] * -0.5;
 	    a->vel[1] += g->ship.vel[1] * -0.5;
 	}
 	a = a->next;
     }
-
-
     //Update bullet positions
     struct timespec bt;
     clock_gettime(CLOCK_REALTIME, &bt);
@@ -625,6 +637,7 @@ void physics(Game *g)
 	}
 	b = b->next;
     }
+
     //
     //Update asteroid positions
     a = g->ahead;
@@ -647,10 +660,6 @@ void physics(Game *g)
 	a->angle += a->rotate;
 	a = a->next;
     }
-
-
-
-
     //
     //Asteroid collision with bullets?
     //If collision detected:
@@ -659,6 +668,21 @@ void physics(Game *g)
     //        if asteroid small, delete it
     a = g->ahead;
     while (a) {
+	if(a->radius <=25){
+	    a->color[0] = 1.0;
+	    a->color[1] = 0.1;
+	    a->color[2] = 0.1;
+	}
+	if(a->radius >=70){
+	    a->color[0] = 0.0;
+	    a->color[1] = 1.0;
+	    a->color[2] = 0.1;
+	}
+	if(a->radius>25 and a->radius<70){
+	    a->color[0] = 1;
+	    a->color[1] = 1;
+	    a->color[2] = 0.1;
+	}
 	//is there a bullet within its radius?
 	Bullet *b = g->bhead;
 	while (b) {
@@ -668,7 +692,7 @@ void physics(Game *g)
 	    if (dist < (a->radius*a->radius)) {
 		//std::cout << "asteroid hit." << std::endl;
 		//this asteroid is hit.
-		if (a->radius > 30.0) {
+		if (a->radius > 20.0) {
 		    //break it into pieces.
 		    Asteroid *ta = a;
 		    buildAsteroidFragment(ta, a);
@@ -685,9 +709,6 @@ void physics(Game *g)
 			g->nasteroids++;
 		    }
 		} else {
-		    a->color[0] = 1.0;
-		    a->color[1] = 0.1;
-		    a->color[2] = 0.1;
 		    //asteroid is too small to break up
 		    //delete the asteroid and bullet
 		    Asteroid *savea = a->next;
@@ -729,11 +750,10 @@ void physics(Game *g)
 	//convert angle to a vector
 	Flt xdir = cos(rad);
 	Flt ydir = sin(rad);
-	g->ship.vel[0] += xdir*0.2f;
-	g->ship.vel[1] += ydir*0.2f;
+	g->ship.vel[0] += xdir*0.02f;
+	g->ship.vel[1] += ydir*0.02f;
 	Flt speed = sqrt(g->ship.vel[0]*g->ship.vel[0]+
 		g->ship.vel[1]*g->ship.vel[1]);
-	//normalize & cap speed
 	if (speed > 10.0f) {
 	    speed = 10.0f;
 	    normalize(g->ship.vel);
@@ -775,15 +795,6 @@ void physics(Game *g)
 	    g->nbullets++;
 	}
     }
-    if (keys[XK_f]) {
-	Asteroid *a2 = g->ahead;
-	while(a2){
-	    Asteroid *savea = a2->next;
-	    deleteAsteroid(g, a2);
-	    a2 = savea;
-	    g->nasteroids--;
-	}
-    }
 }
 
 void render(Game *g)
@@ -811,19 +822,13 @@ void render(Game *g)
     ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
     ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
     ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
-    ggprint8b(&r, 16, 0x00ffff00, "time: %i", g->aTimer);
+    ggprint8b(&r, 16, 0x00ffff00, "Game time: %i", g->aTimer);
     //-------------------------------------------------------------------------
     //Draw the ship
-    /* Ship Super Mode Color Flashing
-       int x,y,z;
-       x = random(3);
-       y = random(3);
-       z = random(3);
-       glColor3f(x,y,z);
-       */
     glColor3fv(g->ship.color);
     glPushMatrix();
     glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
+    //float angle = atan2(ship.dir[1], ship.dir[0]);
     glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
     glBegin(GL_TRIANGLES);
     glVertex2f(-12.0f, -10.0f);
@@ -833,9 +838,9 @@ void render(Game *g)
     glVertex2f(  0.0f, 20.0f);
     glVertex2f( 12.0f, -10.0f);
     glEnd();
-    //glColor3f(1.0f, 0.0f, 0.0f);
-    //glBegin(GL_POINTS);
-    glVertex2f(0.0f, 0.0f);
+    glColor3f(1.0f,0.0f,0.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(0.0f,0.0f);
     glEnd();
     glPopMatrix();
     if (keys[XK_Up]) {
@@ -846,18 +851,31 @@ void render(Game *g)
 	Flt xdir = cos(rad);
 	Flt ydir = sin(rad);
 	Flt xs,ys,xe,ye,r;
-	glBegin(GL_LINES);
 	for (i=0; i<16; i++) {
+	    glBegin(GL_LINES);
 	    xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
 	    ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-	    r = rnd()*50.0+50.0;
+	    
+	    r = rnd()*80.0+80.0;
+
 	    xe = -xdir * r + rnd() * 18.0 - 9.0;
 	    ye = -ydir * r + rnd() * 18.0 - 9.0;
-	    glColor3f(rnd()*1.0f, rnd()*4.0f, rnd()*6.0f);
+	    if(r < 26.0) {
+		glColor3f(.128, 0.781, .878);
+	    } else {
+		if(r >26 && r <= 52) {
+		    glColor3f(.128, 0.835, .128);
+		}
+		else {
+		    glColor3f(.972, 0.113, .074);
+
+		}
+	    }
 	    glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
 	    glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
+	    glEnd();
+	    cout << r<<endl;
 	}
-	glEnd();
     }
     //get the game time
 
@@ -870,6 +888,11 @@ void render(Game *g)
 		resizeAsteroid(a);
 	    }
 	    //Log("draw asteroid...\n");
+	    //float x,y,z;
+	    //x = random(3);
+	    //y = random(3);
+	    //z = random(3);
+	    //glColor3f(x,y,z);
 	    glColor3fv(a->color);
 	    glPushMatrix();
 	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -911,6 +934,71 @@ void render(Game *g)
 	}
     }
 }
+/*if (keys[XK_Up]) {
+  int i;
+//draw thrust
+Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
+//convert angle to a vector
+Flt xdir = cos(rad);
+Flt ydir = sin(rad);
+Flt xs,ys,xe,ye,r;
+for (i=0; i<16; i++) {
+glBegin(GL_LINES);
+xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+r = rnd()*80.0+80.0;
+
+xe = -xdir * r + rnd() * 18.0 - 9.0;
+ye = -ydir * r + rnd() * 18.0 - 9.0;
+if(r < 26.0) {
+glColor3f(.128, 0.781, .878);
+} else {
+if(r >26 && r <= 52) {
+glColor3f(.128, 0.835, .128);
+}
+else {
+glColor3f(.972, 0.113, .074);
+
+}
+}
+glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
+glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
+glEnd();
+cout << r<<endl;
+}
+}*/
+//-------------------------------------------------------------------------
+/*//Draw the asteroids
+  {
+  Asteroid *a = g->ahead;
+  while (a) {
+//Log("draw asteroid...\n");
+glColor3fv(a->color);
+glPushMatrix();
+glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+glBegin(GL_TRIANGLES);
+//Log("%i verts\n",a->nverts);
+for (int j=0; j<a->nverts-2; j++) {
+glVertex2f(a->vert[j][0], a->vert[j][1]);
+glVertex2f(a->vert[j+1][0], a->vert[j+1][1]);
+glVertex2f(a->vert[7][0], a->vert[7][1]);
+}
+glEnd();
+//glBegin(GL_LINES);
+//	glVertex2f(0,   0);
+//	glVertex2f(a->radius, 0);
+//glEnd();
+glPopMatrix();
+glColor3f(1.0f, 0.0f, 0.0f);
+glBegin(GL_POINTS);
+glVertex2f(a->pos[0], a->pos[1]);
+glEnd();
+a = a->next;
+}
+}*/
+//-------------------------------------------------------------------------
+//Draw the bullets
 
 
 
