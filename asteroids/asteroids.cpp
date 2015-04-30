@@ -34,9 +34,6 @@
 #include <ctime>
 #include <cmath>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
@@ -45,6 +42,13 @@
 extern "C" {
 #include "fonts.h"
 }
+
+#define USE_SOUNDS
+#ifdef USESOUND
+#include <FMOD/fmod.h>
+#include <FMOD/wincompat.h>
+#include "fmod.h"
+#endif
 
 using namespace std;
 
@@ -97,6 +101,7 @@ int xres=1250, yres=900;
 
 Ppmimage *bgImage=NULL;
 GLuint bgTexture;
+int play_sounds = 0;
 
 struct Ship {
     Vec dir;
@@ -190,6 +195,7 @@ int main(void)
     logOpen();
     initXWindows();
     init_opengl();
+    init_sounds();
     Game game;
     srand(time(NULL));
     int done=0;
@@ -350,6 +356,29 @@ void init_opengl(void)
 	    bgImage->width, bgImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
 }
+
+void init_sounds(void)
+{
+#ifdef USE_SOUND
+    FMOD_RESULT result;
+    if (fmod_init()) {
+	std::cout << "ERROR - fmod_init()\n" << std::endl;
+	return;
+    }
+    if (fmod_createsound((char *)"AAmusic.mp3", 0)) {
+	std::cout << "ERROR - fmod_createsound()\n" << std::endl;
+	return;
+    }
+    if (fmod_createsound((char *)"AAmusic.mp3", 1)) {
+	std::cout << "ERROR - fmod_createsound()\n" << std::endl;
+	return;
+    }
+    fmod_setmode(0,FMOD_LOOP_OFF);
+    //fmod_playsound(0);
+    //fmod_systemupdate();
+    #endif
+}
+
 
 void check_resize(XEvent *e)
 {
