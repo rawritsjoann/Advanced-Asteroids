@@ -837,6 +837,7 @@ void render(Game *g)
 	}
 	glEnd();
     }
+    //random change
     //get the game time
 
     //-------------------------------------------------------------------------
