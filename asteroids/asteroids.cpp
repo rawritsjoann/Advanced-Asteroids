@@ -1,7 +1,7 @@
 //cs335 Spring 2015
 //
 //program: AdvancedAsteroidz
-//author:  Drew, Michael, Joann, AJ
+//author:  Drew, Michael, JoAnn, AJ
 //date:    2015
 //
 // Possible requirements:
@@ -15,6 +15,7 @@
 // use of textures
 //
 //CHANGES CHANGES
+//Test change - JoAnn
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
