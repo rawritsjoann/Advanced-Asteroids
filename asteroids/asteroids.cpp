@@ -210,7 +210,7 @@ int main(void)
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
-	///cleanup_fonts();
+	cleanup_fonts();
 	logClose();
 	return 0;
 }
@@ -294,7 +294,7 @@ void init_opengl(void)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	//initialize_fonts();
+	initialize_fonts();
 }
 
 void check_resize(XEvent *e)
@@ -317,7 +317,7 @@ void init(Game *g) {
 
 		a->nverts = 8;
 		a->radius = rnd()*80.0 + 40.0;
-		Flt r2 = a->radius / 2.0;
+		//Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
 		for (int i=0; i<a->nverts; i++) {
@@ -717,9 +717,9 @@ void render(Game *g)
 	r.bot = yres - 20;
 	r.left = 10;
 	r.center = 0;
-	//ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
-	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
+	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
+	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
+	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	glColor3fv(g->ship.color);
