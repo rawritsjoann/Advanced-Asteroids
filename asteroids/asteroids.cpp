@@ -14,6 +14,7 @@
 // sound
 // use of textures
 //
+//CHANGES CHANGES
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -238,7 +239,7 @@ void set_title(void)
 {
     //Set the window title bar.
     XMapWindow(dpy, win);
-    XStoreName(dpy, win, "CS335 - Asteroids template");
+    XStoreName(dpy, win, "CS335 - Advanced Asteroidz");
 }
 
 void setup_screen_res(const int w, const int h)
@@ -331,7 +332,7 @@ void check_resize(XEvent *e)
 }
 
 void init(Game *g) {
-    //build 10 asteroids...
+    // start with 10 asteroids
     for (int j=0; j<10; j++) {
 	Asteroid *a = new Asteroid;
 	a->nverts = 8;
@@ -344,8 +345,8 @@ void init(Game *g) {
 	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 	    angle += inc;
 	}
-	a->pos[0] = (Flt)(rand() % xres);
-	a->pos[1] = (Flt)(rand() % yres);
+	a->pos[0] = (Flt)(rand() % 800);
+	a->pos[1] = (Flt)(rand() % 600);
 	a->pos[2] = 0.0f;
 	a->angle = 0.0;
 	a->rotate = rnd() * 4.0 - 2.0;
