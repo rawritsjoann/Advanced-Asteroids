@@ -170,6 +170,11 @@ int main(void)
 
     while (done != 1) {
 	Rect r;
+	r.bot = yres - 500;
+	r.left = 500;
+	r.center = 0;
+	ggprint16(&r, 16, 0x00ffff00, "ADVANCED ASTEROIDS");
+	ggprint16(&r, 16, 0x00ffff00, "Press H for Help or S to Start Playing");
 	//add Start Menu Background
 	while (XPending(dpy)) {
 	    XEvent e;
@@ -183,7 +188,7 @@ int main(void)
 		r.left = 600;
 		r.center = 0;
 		ggprint16(&r, 16, 0x00ffff00, "This is the HELP menu");
-		ggprint16(&r, 16, 0x00ffff00, "Press Q to start game");
+		ggprint16(&r, 16, 0x00ffff00, "Press S to start game");
 	    }
 	    if(done == 3){
 		init(&game);
@@ -432,7 +437,7 @@ int check_keys(XEvent *e)
 	    return 1;
 	case XK_h:
 	    return 2;
-	case XK_q:
+	case XK_s:
 	    return 3;
 	case XK_p:
 	    return 4;
