@@ -873,19 +873,18 @@ void render(Game *g)
 	    xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
 	    ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
 	    
-	    r = rnd()*80.0+80.0;
+	    r = rnd()*50.0+50.0;
 
 	    xe = -xdir * r + rnd() * 18.0 - 9.0;
 	    ye = -ydir * r + rnd() * 18.0 - 9.0;
 	    if(r < 26.0) {
-		glColor3f(.128, 0.781, .878);
+		glColor3f(9.0f,9.0f,9.0f);
 	    } else {
 		if(r >26 && r <= 52) {
-		    glColor3f(.128, 0.835, .128);
+		    glColor3f(9.0f,9.0f,0.0f);
 		}
 		else {
-		    glColor3f(.972, 0.113, .074);
-
+		    glColor3f(9.0f,0.0f,0.0f);
 		}
 	    }
 	    glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
