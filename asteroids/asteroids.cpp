@@ -349,7 +349,7 @@ void init_opengl(void)
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
     //load image background
-    bgImage = ppm6GetImage((char*)"AA_background.ppm");
+    bgImage = ppm6GetImage((char*)"./images/AA_background.ppm");
     glGenTextures(1, &bgTexture);
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
