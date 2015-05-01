@@ -817,10 +817,16 @@ void render(Game *g)
 {
     //-----------------------------------------
     //Draw background
-    glClearColor(1.0,1.0,1.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glBegin(GL_QUADS);
+    /*
+    int x, y, z;
+    x = random(3);
+    y = random(3);
+    z = random(3);
+    glColor3f(x,y,z);
+    */
+    glColor3f(1.0f,0.0f,0.0f);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
     glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
     glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
@@ -830,9 +836,9 @@ void render(Game *g)
     struct timespec at;
     clock_gettime(CLOCK_REALTIME, &at);
     g->aTimer = timeDiff(&g->asteroidTimer, &at);
-    //float wid;
+    
+    
     Rect r;
-    //
     r.bot = yres - 20;
     r.left = 10;
     r.center = 0;
@@ -840,9 +846,15 @@ void render(Game *g)
     ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
     ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
     ggprint8b(&r, 16, 0x00ffff00, "Game time: %i", g->aTimer);
+    
     //-------------------------------------------------------------------------
     //Draw the ship
-    glColor3fv(g->ship.color);
+    //glColor3fv(g->ship.color);
+    int x, y, z;
+    x = random(3);
+    y = random(3);
+    z = random(3);
+    glColor3f(x,y,z);
     glPushMatrix();
     glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
     //float angle = atan2(ship.dir[1], ship.dir[0]);
@@ -892,8 +904,6 @@ void render(Game *g)
 	    glEnd();
 	}
     }
-    //get the game time
-
     //-------------------------------------------------------------------------
     //Draw the asteroids
     {
