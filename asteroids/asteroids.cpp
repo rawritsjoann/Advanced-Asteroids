@@ -44,7 +44,7 @@ extern "C" {
 }
 
 #define USE_SOUNDS
-#ifdef USESOUND
+#ifdef USE_SOUND // Add underscore
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
 #include "fmod.h"
@@ -253,7 +253,7 @@ int main(void)
 	    render(&game);
 	    glXSwapBuffers(dpy, win);
 	}
-	else{
+	if(done == 4) {
 	    rPause.bot = yres-100;
 	    rPause.left = 400;
 	    ggprint16(&rPause, 16, 0x00ffff00, "This is the Pause menu");
@@ -331,8 +331,10 @@ void init_opengl(void)
     //OpenGL initialization
     glViewport(0, 0, xres, yres);
     //Initialize matrices
-    glMatrixMode(GL_PROJECTION); glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     //This sets 2D mode (no perspective)
     glOrtho(0, xres, 0, yres, -1, 1);
     //
@@ -707,7 +709,7 @@ void physics(Game *g)
 	    a->color[1] = 1.0;
 	    a->color[2] = 0.1;
 	}
-	if(a->radius>25 and a->radius<70){
+	if(a->radius>25 && a->radius<70){
 	    a->color[0] = 1;
 	    a->color[1] = 1;
 	    a->color[2] = 0.1;
@@ -721,7 +723,7 @@ void physics(Game *g)
 	    if (dist < (a->radius*a->radius)) {
 		//std::cout << "asteroid hit." << std::endl;
 		//this asteroid is hit.
-		if (a->radius > 20.0) {
+		if (a->radius > 25.0) {
 		    //break it into pieces.
 		    Asteroid *ta = a;
 		    buildAsteroidFragment(ta, a);
@@ -830,6 +832,7 @@ void render(Game *g)
 {
     //-----------------------------------------
     //Draw background
+    glClearColor(1.0,1.0,1.0,1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glBegin(GL_QUADS);
@@ -838,7 +841,7 @@ void render(Game *g)
     glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
     glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
     glEnd();
-    
+
     struct timespec at;
     clock_gettime(CLOCK_REALTIME, &at);
     g->aTimer = timeDiff(&g->asteroidTimer, &at);
@@ -903,7 +906,6 @@ void render(Game *g)
 	    glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
 	    glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
 	    glEnd();
-	    cout << r<<endl;
 	}
     }
     //get the game time
@@ -933,10 +935,12 @@ void render(Game *g)
 	    }
 	    glEnd();
 	    glPopMatrix();
-	    //glColor3f(1.0f, 0.0f, 0.0f);
-	    //glBegin(GL_POINTS);
+	    /*
+	    glColor3f(1.0f,0.0f,0.0f);
+	    glBegin(GL_POINTS);
 	    glVertex2f(a->pos[0], a->pos[1]);
 	    glEnd();
+	    */
 	    a = a->next;
 	}
     }

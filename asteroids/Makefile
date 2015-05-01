@@ -7,12 +7,7 @@ all: asteroids
 
 
 asteroids: asteroids.cpp ppm.c log.c
-	g++ $(CFLAGS) asteroids.cpp log.c -Wall -Wextra $(LFLAGS) -o asteroids ./libggfonts.so
-#asteroids2: asteroids2.cpp ppm.c log.c
-#	g++ $(CFLAGS) asteroids2.cpp log.c -Wall -Wextra $(LFLAGS) -o asteroids2
-
-acpp: asteroids.cpp ppm.c log.c
-	g++ $(CFLAGS) ppm.c asteroids.cpp log.c -Wall -Wextra $(LFLAGS) -o acpp
+	g++ $(CFLAGS) asteroids.cpp ppm.c log.c -Wall -Wextra $(LFLAGS) -o asteroids ./libggfonts.so
 
 clean:
 	rm -f asteroids 
