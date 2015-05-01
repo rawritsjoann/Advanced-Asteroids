@@ -589,9 +589,9 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
     ta->pos[2] = 0.0f;
     ta->angle = 0.0;
     ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
-    //ta->color[0] = 0.8;
-    //ta->color[1] = 0.8;
-    //ta->color[2] = 0.7;
+    ta->color[0] = 0.8;
+    ta->color[1] = 0.8;
+    ta->color[2] = 0.7;
     ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
     ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
     //std::cout << "frag" << std::endl;
@@ -620,7 +620,6 @@ void physics(Game *g)
     Asteroid *a = g->ahead;
 
     while(a) {
-
 	d0 = g->ship.pos[0] - a->pos[0];
 	d1 = g->ship.pos[1] - a->pos[1];
 	dist = (d0*d0 + d1*d1);
@@ -699,22 +698,8 @@ void physics(Game *g)
     //        if asteroid small, delete it
     a = g->ahead;
     while (a) {
-	if(a->radius <=25){
-	    a->color[0] = 1.0;
-	    a->color[1] = 0.1;
-	    a->color[2] = 0.1;
-	}
-	if(a->radius >=70){
-	    a->color[0] = 0.0;
-	    a->color[1] = 1.0;
-	    a->color[2] = 0.1;
-	}
-	if(a->radius>25 && a->radius<70){
-	    a->color[0] = 1;
-	    a->color[1] = 1;
-	    a->color[2] = 0.1;
-	}
 	//is there a bullet within its radius?
+	glColor3fv(a->color);
 	Bullet *b = g->bhead;
 	while (b) {
 	    d0 = b->pos[0] - a->pos[0];
