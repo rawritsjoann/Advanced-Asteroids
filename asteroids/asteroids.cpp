@@ -11,16 +11,7 @@
 // ----------------------
 // welcome screen
 // menu
-// multiple simultaneous key-press
-// show exhaust for thrusting
-// move the asteroids
-// collision detection for bullet on asteroid
-// collision detection for asteroid on ship
 // control of bullet launch point
-// life span for each bullet
-// cleanup the bullets that miss a target
-// split asteroids into pieces when blasted
-// random generation of new asteroids
 // score keeping
 // levels of difficulty
 // sound
@@ -37,14 +28,13 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
-#include "log.h"
 #include "solidSphere.h"
 extern "C" {
 #include "fonts.h"
 }
 
 #define USE_SOUNDS
-#ifdef USE_SOUND // Add underscore
+#ifdef USE_SOUND
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
 #include "fmod.h"
@@ -151,7 +141,6 @@ struct Asteroid {
 	float color[3];
 	struct Asteroid *prev;
 	struct Asteroid *next;
-	// constructor
 	Asteroid() {
 		//solidSphere sph(1, 16, 32);
 		prev = NULL;
@@ -168,8 +157,6 @@ struct Game {
 	int aTimer;
 	struct timespec bulletTimer;
 	struct timespec asteroidTimer;
-
-	// constructor
 	Game() {
 		ahead = NULL;
 		bhead = NULL;
@@ -196,7 +183,6 @@ void render(Game *game);
 
 int main(void)
 {
-	logOpen();
 	initXWindows();
 	init_opengl();
 	init_sounds();
@@ -212,7 +198,6 @@ int main(void)
 		r.center = 0;
 		ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
 		ggprint16(&r, 36, 0x00ffff00, "Press H for Help or S to Start Playing");
-		//add Start Menu Background
 		while (XPending(dpy)) {
 			XEvent e;
 			XNextEvent(dpy, &e);
@@ -266,7 +251,6 @@ int main(void)
 	}
 	cleanupXWindows();
 	cleanup_fonts();
-	logClose();
 	return 0;
 }
 
@@ -292,7 +276,6 @@ void setup_screen_res(const int w, const int h)
 void initXWindows(void)
 {
 	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-	//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
 	XSetWindowAttributes swa;
 	setup_screen_res(xres, yres);
 	dpy = XOpenDisplay(NULL);
@@ -322,7 +305,6 @@ void reshape_window(int width, int height)
 {
 	//window has been resized.
 	setup_screen_res(width, height);
-	//
 	glViewport(0, 0, (GLint)width, (GLint)height);
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -341,12 +323,12 @@ void init_opengl(void)
 	glLoadIdentity();
 	//This sets 2D mode (no perspective)
 	glOrtho(0, xres, 0, yres, -1, 1);
-	//
+	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_FOG);
 	glDisable(GL_CULL_FACE);
-	//
+	
 	//Clear the screen to black
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
@@ -423,8 +405,7 @@ void init(Game *g) {
 		a->color[2] = 0.3 + (j * 0.02);
 		a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		std::cout << "asteroid" << std::endl;
-		//add to front of linked list
+		//std::cout << "asteroid" << std::endl;
 		a->next = g->ahead;
 		if (g->ahead != NULL)
 			g->ahead->prev = a;
@@ -479,7 +460,6 @@ int check_keys(XEvent *e)
 	//keyboard input?
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
-	//Log("key: %i\n", key);
 	if (e->type == KeyRelease) {
 		keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
@@ -672,7 +652,6 @@ void physics(Game *g)
 		b = b->next;
 	}
 
-	//
 	//Update asteroid positions
 	a = g->ahead;
 	while (a) {
@@ -694,12 +673,8 @@ void physics(Game *g)
 		a->angle += a->rotate;
 		a = a->next;
 	}
-	//
-	//Asteroid collision with bullets?
-	//If collision detected:
-	//     1. delete the bullet
-	//     2. break the asteroid into pieces
-	//        if asteroid small, delete it
+	
+	//Asteroid collision with bullets
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
@@ -710,7 +685,6 @@ void physics(Game *g)
 			d1 = b->pos[1] - a->pos[1];
 			dist = (d0*d0 + d1*d1);
 			if (dist < (a->radius*a->radius)) {
-				//std::cout << "asteroid hit." << std::endl;
 				//this asteroid is hit.
 				g->ship.superMode++;
 				if (a->radius > 25.0) {
@@ -824,13 +798,6 @@ void render(Game *g)
 	//Draw background
 	glBindTexture(GL_TEXTURE_2D, bgTexture);
 	glBegin(GL_QUADS);
-	/*
-	   int x, y, z;
-	   x = random(3);
-	   y = random(3);
-	   z = random(3);
-	   glColor3f(x,y,z);
-	   */
 	glColor3f(1.0f,0.0f,0.0f);
 	glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
 	glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
@@ -929,29 +896,16 @@ void render(Game *g)
 			if( g->aTimer%15 == 0 && g->nasteroids <= 25) {
 				resizeAsteroid(a);
 			}
-			//Log("draw asteroid...\n");
-			//float x,y,z;
-			//x = random(3);
-			//y = random(3);
-			//z = random(3);
-			//glColor3f(x,y,z);
 			glColor3fv(a->color);
 			glPushMatrix();
 			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_TRIANGLE_FAN);
-			//Log("%i verts\n",a->nverts);
 			for (int j=0; j<a->nverts; j++) {
 				glVertex2f(a->vert[j][0], a->vert[j][1]);
 			}
 			glEnd();
 			glPopMatrix();
-			/*
-			   glColor3f(1.0f,0.0f,0.0f);
-			   glBegin(GL_POINTS);
-			   glVertex2f(a->pos[0], a->pos[1]);
-			   glEnd();
-			   */
 			a = a->next;
 		}
 	}
@@ -960,7 +914,6 @@ void render(Game *g)
 	{
 		Bullet *b = g->bhead;
 		while (b) {
-			//Log("draw bullet...\n");
 			glColor3f(1.0, 1.0, 1.0);
 			glBegin(GL_POINTS);
 			glVertex2f(b->pos[0],      b->pos[1]);
@@ -1016,13 +969,11 @@ cout << r<<endl;
   {
   Asteroid *a = g->ahead;
   while (a) {
-//Log("draw asteroid...\n");
 glColor3fv(a->color);
 glPushMatrix();
 glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 glBegin(GL_TRIANGLES);
-//Log("%i verts\n",a->nverts);
 for (int j=0; j<a->nverts-2; j++) {
 glVertex2f(a->vert[j][0], a->vert[j][1]);
 glVertex2f(a->vert[j+1][0], a->vert[j+1][1]);
