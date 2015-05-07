@@ -33,12 +33,11 @@ extern "C" {
 #include "fonts.h"
 }
 
-#define USE_SOUNDS
-#ifdef USE_SOUND
+//#ifdef USE_SOUND
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
 #include "fmod.h"
-#endif
+//#endif
 
 using namespace std;
 
@@ -180,6 +179,7 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void init(Game *g);
 void init_sounds(void);
+void play_music();
 void physics(Game *game);
 void render(Game *game);
 
@@ -214,6 +214,7 @@ int main(void)
                 ggprint16(&r, 16, 0x00ffff00, "Press S to start game");
             }
             if(done == 3){
+    		play_music();;
                 init(&game);
                 done = 1;
             }
@@ -253,6 +254,7 @@ int main(void)
     }
     cleanupXWindows();
     cleanup_fonts();
+    fmod_cleanup();
     return 0;
 }
 
@@ -358,38 +360,22 @@ void init_opengl(void)
 
 void init_sounds(void)
 {
-#ifdef USE_SOUND
-    /*OD_RESULT result;
-      if (fmod_init()) {
-      std::cout << "ERROR - fmod_init()\n" << std::endl;
-      return;
-      }
-      if (fmod_createsound((char *)"AAmusic.mp3", 0)) {
-      std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-      return;
-      }
-      if (fmod_createsound((char *)"AAmusic.mp3", 1)) {
-      std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-      return;
-      }*/
-
-    fmod_createsound((char *)"AAmusic.mp3",0);
-    fmod_createsound((char *)"AAmusic.mp3",1);
-    fmod_createsound((char *)"AAmusic.mp3",2);
-    fmod_createsound((char *)"AAmusic.mp3",3);
-    fmod_createsound((char *)"AAmusic.mp3",4);
+//#ifdef USE_SOUND
+    if(fmod_init()) {
+	printf("ERROR");
+	return;
+    }
+    if(fmod_createsound((char *)"./sounds/10 Arpanauts.mp3", 0)) {
+	printf("ERROR");
+	return;
+    }
     fmod_setmode(0,FMOD_LOOP_NORMAL);
-    fmod_setmode(1,FMOD_LOOP_NORMAL);
-    fmod_setmode(3,FMOD_LOOP_NORMAL);
-    fmod_setmode(4,FMOD_LOOP_NORMAL);
-
-    //for later
-    //fmod_cleanup();
-    //fmod_playsound(2);
-    //fmod_stopSound(0);
-#endif
+//#endif
 }
 
+void play_music() {
+    fmod_playsound(0);
+}
 
 void check_resize(XEvent *e)
 {
