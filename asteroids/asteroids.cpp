@@ -89,8 +89,10 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 int xres=1250, yres=900;
 
+Ppmimage *shipImage=NULL;
 Ppmimage *bgImage=NULL;
 GLuint bgTexture;
+GLuint shipTexture;
 int play_sounds = 0;
 
 struct Ship {
@@ -314,6 +316,46 @@ void reshape_window(int width, int height)
 
 void init_opengl(void)
 {
+<<<<<<< HEAD
+    //OpenGL initialization
+    glViewport(0, 0, xres, yres);
+    //Initialize matrices
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    //This sets 2D mode (no perspective)
+    glOrtho(0, xres, 0, yres, -1, 1);
+    //
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_FOG);
+    glDisable(GL_CULL_FACE);
+    //
+    //Clear the screen to black
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    //Do this to allow fonts
+    glEnable(GL_TEXTURE_2D);
+    initialize_fonts();
+    //load image background
+    bgImage = ppm6GetImage((char*)"./images/AA_background.ppm");
+    shipImage = ppm6GetImage((char*)"./images/ship.ppm");
+    glGenTextures(1, &shipTexture);
+    glBindTexture(GL_TEXTURE_2D, shipTexture);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, shipImage->width, shipImage->height, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
+ //   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  //  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  //  glTexImage2D(GL_TEXTURE_2D, 0, 3,
+//	    shipImage->width, shipImage->height,
+//	    0, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
+    glGenTextures(1, &bgTexture);
+    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    bgImage->width, bgImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
+=======
 	//OpenGL initialization
 	glViewport(0, 0, xres, yres);
 	//Initialize matrices
@@ -343,6 +385,7 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3,
 			bgImage->width, bgImage->height,
 			0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
+>>>>>>> 4b7ac864a71b112fdef71c2144dd1f7c9d1cf3cc
 }
 
 void init_sounds(void)
@@ -821,6 +864,65 @@ void render(Game *g)
 	clock_gettime(CLOCK_REALTIME, &at);
 	g->aTimer = timeDiff(&g->asteroidTimer, &at);
 
+<<<<<<< HEAD
+    struct timespec at;
+    clock_gettime(CLOCK_REALTIME, &at);
+    g->aTimer = timeDiff(&g->asteroidTimer, &at);
+    
+    
+    Rect r;
+    r.bot = yres - 20;
+    r.left = 10;
+    r.center = 0;
+    ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
+    ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
+    ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
+    ggprint8b(&r, 16, 0x00ffff00, "Game time: %i", g->aTimer);
+    
+    //-------------------------------------------------------------------------
+    //Draw the ship
+    //glColor3fv(g->ship.color);
+
+    int x, y, z;
+    x = random(3);
+    y = random(3);
+    z = random(3);
+   // glColor3f(x,y,z);
+    glPushMatrix();
+    glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
+    //float angle = atan2(ship.dir[1], ship.dir[0]);
+    glBindTexture(GL_TEXTURE_2D, shipTexture);
+    glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
+    glBegin(GL_TRIANGLES); //TRIANGLES
+    glVertex2f(-12.0f, -10.0f); glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(  0.0f, 20.0f);  glTexCoord2f(0.5f, 0.6f);
+    glVertex2f(  0.0f, -6.0f);  glTexCoord2f(0.4f, 0.8f);
+    glVertex2f(  0.0f, -6.0f);  glTexCoord2f(0.6f, 0.6f);
+    glVertex2f(  0.0f, 20.0f);  glTexCoord2f(0.5f, 0.8f);
+    glVertex2f( 12.0, -10.0f);  glTexCoord2f(1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnd();
+    glColor3f(1.0f,0.0f,0.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(0.0f,0.0f);
+    glEnd();
+    glPopMatrix();
+    if (keys[XK_Up]) {
+	int i;
+	//draw thrust
+	Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
+	//convert angle to a vector
+	Flt xdir = cos(rad);
+	Flt ydir = sin(rad);
+	Flt xs,ys,xe,ye,r;
+	for (i=0; i<16; i++) {
+	    glBegin(GL_LINES);
+	    xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+	    ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+	    
+	    r = rnd()*50.0+50.0;
+=======
+>>>>>>> 4b7ac864a71b112fdef71c2144dd1f7c9d1cf3cc
 
 	Rect r;
 	r.bot = yres - 20;
@@ -900,6 +1002,34 @@ void render(Game *g)
 			glEnd();
 		}
 	}
+<<<<<<< HEAD
+    }
+    //-------------------------------------------------------------------------
+    //Draw the asteroids
+    {
+	Asteroid *a = g->ahead;
+	while (a) {
+	    if( g->aTimer%15 == 0 && g->nasteroids <= 25) {
+		resizeAsteroid(a);
+	    }
+	    glColor3fv(a->color);
+	    glPushMatrix();
+	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+	    glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+	    glBegin(GL_TRIANGLE_FAN);
+	    for (int j=0; j<a->nverts; j++) {
+		glVertex2f(a->vert[j][0], a->vert[j][1]);
+	    }
+	    glEnd();
+	    glPopMatrix();
+	    /*
+	    glColor3f(1.0f,0.0f,0.0f);
+	    glBegin(GL_POINTS);
+	    glVertex2f(a->pos[0], a->pos[1]);
+	    glEnd();
+	    */
+	    a = a->next;
+=======
 	//-------------------------------------------------------------------------
 	//Draw the asteroids
 	{
@@ -920,6 +1050,7 @@ void render(Game *g)
 			glPopMatrix();
 			a = a->next;
 		}
+>>>>>>> 4b7ac864a71b112fdef71c2144dd1f7c9d1cf3cc
 	}
 	//-------------------------------------------------------------------------
 	//Draw the bullets
