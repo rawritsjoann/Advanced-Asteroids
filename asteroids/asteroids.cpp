@@ -99,8 +99,10 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 int xres=1250, yres=900;
 
+Ppmimage *shipImage=NULL;
 Ppmimage *bgImage=NULL;
 GLuint bgTexture;
+GLuint shipTexture;
 int play_sounds = 0;
 
 struct Ship {
@@ -350,6 +352,15 @@ void init_opengl(void)
     initialize_fonts();
     //load image background
     bgImage = ppm6GetImage((char*)"./images/AA_background.ppm");
+    shipImage = ppm6GetImage((char*)"./images/ship.ppm");
+    glGenTextures(1, &shipTexture);
+    glBindTexture(GL_TEXTURE_2D, shipTexture);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, shipImage->width, shipImage->height, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
+ //   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  //  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  //  glTexImage2D(GL_TEXTURE_2D, 0, 3,
+//	    shipImage->width, shipImage->height,
+//	    0, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
     glGenTextures(1, &bgTexture);
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -850,22 +861,25 @@ void render(Game *g)
     //-------------------------------------------------------------------------
     //Draw the ship
     //glColor3fv(g->ship.color);
+
     int x, y, z;
     x = random(3);
     y = random(3);
     z = random(3);
-    glColor3f(x,y,z);
+   // glColor3f(x,y,z);
     glPushMatrix();
     glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
     //float angle = atan2(ship.dir[1], ship.dir[0]);
+    glBindTexture(GL_TEXTURE_2D, shipTexture);
     glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-12.0f, -10.0f);
-    glVertex2f(  0.0f, 20.0f);
-    glVertex2f(  0.0f, -6.0f);
-    glVertex2f(  0.0f, -6.0f);
-    glVertex2f(  0.0f, 20.0f);
-    glVertex2f( 12.0f, -10.0f);
+    glBegin(GL_TRIANGLES); //TRIANGLES
+    glVertex2f(-12.0f, -10.0f); glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(  0.0f, 20.0f);  glTexCoord2f(0.5f, 0.6f);
+    glVertex2f(  0.0f, -6.0f);  glTexCoord2f(0.4f, 0.8f);
+    glVertex2f(  0.0f, -6.0f);  glTexCoord2f(0.6f, 0.6f);
+    glVertex2f(  0.0f, 20.0f);  glTexCoord2f(0.5f, 0.8f);
+    glVertex2f( 12.0, -10.0f);  glTexCoord2f(1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     glEnd();
     glColor3f(1.0f,0.0f,0.0f);
     glBegin(GL_POINTS);
@@ -912,18 +926,11 @@ void render(Game *g)
 	    if( g->aTimer%15 == 0 && g->nasteroids <= 25) {
 		resizeAsteroid(a);
 	    }
-	    //Log("draw asteroid...\n");
-	    //float x,y,z;
-	    //x = random(3);
-	    //y = random(3);
-	    //z = random(3);
-	    //glColor3f(x,y,z);
 	    glColor3fv(a->color);
 	    glPushMatrix();
 	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 	    glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 	    glBegin(GL_TRIANGLE_FAN);
-	    //Log("%i verts\n",a->nverts);
 	    for (int j=0; j<a->nverts; j++) {
 		glVertex2f(a->vert[j][0], a->vert[j][1]);
 	    }
