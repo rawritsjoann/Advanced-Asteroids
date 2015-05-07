@@ -348,7 +348,7 @@ void init_opengl(void)
 void init_sounds(void)
 {
 #ifdef USE_SOUND
-	FMOD_RESULT result;
+	/*OD_RESULT result;
 	if (fmod_init()) {
 		std::cout << "ERROR - fmod_init()\n" << std::endl;
 		return;
@@ -360,10 +360,22 @@ void init_sounds(void)
 	if (fmod_createsound((char *)"AAmusic.mp3", 1)) {
 		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
 		return;
-	}
-	fmod_setmode(0,FMOD_LOOP_OFF);
-	//fmod_playsound(0);
-	//fmod_systemupdate();
+	}*/
+
+    fmod_createsound((char *)"AAmusic.mp3",0);
+    fmod_createsound((char *)"AAmusic.mp3",1);
+    fmod_createsound((char *)"AAmusic.mp3",2);
+    fmod_createsound((char *)"AAmusic.mp3",3);
+    fmod_createsound((char *)"AAmusic.mp3",4);
+	fmod_setmode(0,FMOD_LOOP_NORMAL);
+	fmod_setmode(1,FMOD_LOOP_NORMAL);
+	fmod_setmode(3,FMOD_LOOP_NORMAL);
+	fmod_setmode(4,FMOD_LOOP_NORMAL);
+	
+    //for later
+    //fmod_cleanup();
+    //fmod_playsound(2);
+    //fmod_stopSound(0);
 #endif
 }
 
