@@ -1,3 +1,7 @@
+//Author: Drew Cody
+//Class: CMPS 335
+//Assignment: HW3
+
 #include <cmath>
 #include "structures.h"
 
