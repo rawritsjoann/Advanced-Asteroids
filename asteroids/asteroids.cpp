@@ -256,11 +256,6 @@ void init_opengl(void)
     glGenTextures(1, &shipTexture);
     glBindTexture(GL_TEXTURE_2D, shipTexture);
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, shipImage->width, shipImage->height, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
-    //   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    //  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //  glTexImage2D(GL_TEXTURE_2D, 0, 3,
-    //	    shipImage->width, shipImage->height,
-    //	    0, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
     glGenTextures(1, &bgTexture);
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
