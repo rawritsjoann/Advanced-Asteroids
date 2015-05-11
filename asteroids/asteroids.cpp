@@ -29,6 +29,8 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "solidSphere.h"
+#include "structures.h"
+#include "drewC.cpp"
 extern "C" {
 #include "fonts.h"
 }
@@ -41,26 +43,9 @@ extern "C" {
 
 using namespace std;
 
-//defined types
-typedef float Flt;
-typedef float Vec[3];
-typedef Flt	Matrix[4][4];
-
-//macros
-#define rnd() (((double)rand())/(double)RAND_MAX)
-#define random(a) (rand()%a)
-#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
-#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
-#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
-#define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-                             (c)[1]=(a)[1]-(b)[1]; \
-(c)[2]=(a)[2]-(b)[2]
 //constants
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
-#define PI 3.141592653589793
-#define ALPHA 1
 
 //X Windows variables
 Display *dpy;
@@ -93,80 +78,6 @@ Ppmimage *bgImage=NULL;
 GLuint bgTexture;
 GLuint shipTexture;
 int play_sounds = 0;
-
-struct Ship {
-    Vec dir;
-    Vec pos;
-    Vec vel;
-    float angle;
-    float color[3];
-    int superMode;
-    int superTime;
-    struct timespec superTimer;
-    Ship() {
-        VecZero(dir);
-        pos[0] = (Flt)(xres/2);
-        pos[1] = (Flt)(yres/2);
-        pos[2] = 0.0f;
-        VecZero(vel);
-        angle = 0.0;
-        color[0] = 1.0;
-        color[1] = 1.0;
-        color[2] = 1.0;
-        superMode = 0;
-        superTime = 0;
-    }
-};
-
-struct Bullet {
-    Vec pos;
-    Vec vel;
-    float color[3];
-    struct timespec time;
-    struct Bullet *prev;
-    struct Bullet *next;
-    Bullet() {
-        prev = NULL;
-        next = NULL;
-    }
-};
-
-struct Asteroid {
-    Vec pos;
-    Vec vel;
-    int nverts;
-    Flt radius;
-    Vec vert[8];
-    float angle;
-    float rotate;
-    float color[3];
-    struct Asteroid *prev;
-    struct Asteroid *next;
-    Asteroid() {
-        //solidSphere sph(1, 16, 32);
-        prev = NULL;
-        next = NULL;
-    }
-};
-
-struct Game {
-    Ship ship;
-    Asteroid *ahead;
-    Bullet *bhead;
-    int nasteroids;
-    int nbullets;
-    int aTimer;
-    struct timespec bulletTimer;
-    struct timespec asteroidTimer;
-    Game() {
-        ahead = NULL;
-        bhead = NULL;
-        nasteroids = 0;
-        nbullets = 0;
-        aTimer = 0;
-    }
-};
-
 
 int keys[65536];
 
@@ -245,7 +156,8 @@ int main(void)
             render(&game);
             glXSwapBuffers(dpy, win);
         }
-        if(done == 4) {
+	if(done == 4)
+	{
             rPause.bot = yres-100;
             rPause.left = 400;
             ggprint16(&rPause, 16, 0x00ffff00, "This is the Pause menu");
@@ -546,25 +458,6 @@ void deleteAsteroid(Game *g, Asteroid *node)
         node = NULL;
     }
 }
-void resizeAsteroid(Asteroid *a)
-{
-    if( a->radius < 40 && a->radius > 20 ) {
-        a->nverts = 8;
-        a->radius = rnd()*80.0 + 40.0;
-        Flt r2 = a->radius / 2.0;
-        Flt angle = 0.0f;
-        Flt inc = (PI * 2.0) / (Flt)a->nverts;
-        for (int i=0; i<a->nverts; i++) {
-            a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-            a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-            angle += inc;
-        }
-        a->color[0] = 1.0;
-        a->color[1] = 0.0;
-        a->color[2] = 0.0;
-    }
-}
-
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 {
     //build ta from a
@@ -905,7 +798,7 @@ void render(Game *g)
     {
         Asteroid *a = g->ahead;
         while (a) {
-            if( g->aTimer%15 == 0 && g->nasteroids <= 25) {
+            if( g->aTimer%15 == 0 && g->nasteroids <= 200) {
                 resizeAsteroid(a);
             }
             glColor3fv(a->color);
