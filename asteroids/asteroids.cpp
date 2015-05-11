@@ -31,15 +31,14 @@
 #include "solidSphere.h"
 #include "structures.h"
 #include "drewC.cpp"
+#include "joannT.cpp"
 extern "C" {
 #include "fonts.h"
 }
 
-//#ifdef USE_SOUND
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
 #include "fmod.h"
-//#endif
 
 using namespace std;
 
@@ -74,8 +73,6 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 int xres=1250, yres=900;
 
 Ppmimage *shipImage=NULL;
-Ppmimage *bgImage=NULL;
-GLuint bgTexture;
 GLuint shipTexture;
 int play_sounds = 0;
 
@@ -250,8 +247,6 @@ void init_opengl(void)
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
-    //load image background
-    bgImage = ppm6GetImage((char*)"./images/AA_background.ppm");
     shipImage = ppm6GetImage((char*)"./images/ship.ppm");
     glGenTextures(1, &shipTexture);
     glBindTexture(GL_TEXTURE_2D, shipTexture);
@@ -261,32 +256,10 @@ void init_opengl(void)
     //  glTexImage2D(GL_TEXTURE_2D, 0, 3,
     //	    shipImage->width, shipImage->height,
     //	    0, GL_RGB, GL_UNSIGNED_BYTE, shipImage->data);
-    glGenTextures(1, &bgTexture);
-    glBindTexture(GL_TEXTURE_2D, bgTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-            bgImage->width, bgImage->height,
-            0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
-}
+    
+    //load image background
 
-void init_sounds(void)
-{
-//#ifdef USE_SOUND
-    if(fmod_init()) {
-	printf("ERROR");
-	return;
-    }
-    if(fmod_createsound((char *)"./sounds/10 Arpanauts.mp3", 0)) {
-	printf("ERROR");
-	return;
-    }
-    fmod_setmode(0,FMOD_LOOP_NORMAL);
-//#endif
-}
-
-void play_music() {
-    fmod_playsound(0);
+    load_background();
 }
 
 void check_resize(XEvent *e)
@@ -696,16 +669,7 @@ void physics(Game *g)
 
 void render(Game *g)
 {
-    //-----------------------------------------
-    //Draw background
-    glBindTexture(GL_TEXTURE_2D, bgTexture);
-    glBegin(GL_QUADS);
-    glColor3f(1.0f,0.0f,0.0f);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
-    glEnd();
+    draw_background();
 
     struct timespec at;
     clock_gettime(CLOCK_REALTIME, &at);
