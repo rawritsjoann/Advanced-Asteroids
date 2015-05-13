@@ -65,7 +65,7 @@ struct Asteroid {
     Vec vert[8];
     float angle;
     float rotate;
-    float color[3];
+    float color[4];
     struct Asteroid *prev;
     struct Asteroid *next;
     Asteroid() {

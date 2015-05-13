@@ -6,7 +6,7 @@
 typedef struct t_ppmimage {
 	int width;
 	int height;
-	void *data;
+	unsigned char *data;
 } Ppmimage;
 
 extern Ppmimage *ppm1GetImage(char *filename);

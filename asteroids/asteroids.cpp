@@ -72,11 +72,17 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 int xres=1250, yres=900;
 
+int nvertcon = 4;
+//Ppm PPM;
+Ppmimage *asteroidTex=NULL;
 Ppmimage *shipImage=NULL;
+Ppmimage *craters = NULL;
+GLuint asteroidtext;
 GLuint shipTexture;
 int play_sounds = 0;
 
 int keys[65536];
+char texFi[] = "./images/generic.ppm";
 
 //function prototypes
 void initXWindows(void);
@@ -90,6 +96,7 @@ void init_sounds(void);
 void play_music();
 void physics(Game *game);
 void render(Game *game);
+GLuint getPpm();
 
 int main(void)
 {
@@ -99,7 +106,7 @@ int main(void)
     Game game;
     srand(time(NULL));
     int done=0;
-    
+
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glBegin(GL_QUADS);
     glColor3f(1.0f,0.0f,0.0f);
@@ -133,7 +140,7 @@ int main(void)
 		ggprint16(&r, 36, 0x00ffff00, "Arrow ->                Turn ship right");
 		ggprint16(&r, 36, 0x00ffff00, "Arrow ^                 Accelerate ship");
 		ggprint16(&r, 36, 0x00ffff00, "Space                    Shoot Gun");
-		
+
 	    }
 	    if(done == 5){
 		r.bot = yres - 200;
@@ -279,6 +286,43 @@ void init_opengl(void)
     load_background();
 }
 
+GLuint getPpm()
+{
+    //load images into a ppm structure
+    //Ppm tmp;
+    asteroidTex = ppm6GetImage((char*)"./images/generic.ppm");
+    int w = asteroidTex->width;
+    int h = asteroidTex->height;
+    unsigned char tmpArr[w*h*3];
+    unsigned char *t = asteroidTex->data;
+    unsigned char dataWithAlpha[w*h*4];
+
+    for(int i=0; i<(w*h*3); i++){
+	tmpArr[i] = *(t+i);
+    }
+    // apply the alpha channel
+    for(int i=0; i<(w*h); i++){
+	// copy color to new array
+	dataWithAlpha[i*4] = tmpArr[3 * i];
+	dataWithAlpha[i*4 + 1] = tmpArr[ 3 * i + 1];
+	dataWithAlpha[i*4 + 2] = tmpArr[ 3 * i + 2];
+	// set alpha
+	dataWithAlpha[i*4+3]=((int)tmpArr[i*3] | (int)tmpArr[i*3+1] | (int)tmpArr[i*3+2] );
+    }
+
+
+    GLuint returningTex;
+    //
+    glGenTextures(1, &returningTex);
+    glBindTexture(GL_TEXTURE_2D, returningTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataWithAlpha);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    return returningTex;
+}
+
+
 void check_resize(XEvent *e)
 {
     //The ConfigureNotify is sent by the
@@ -296,7 +340,7 @@ void init(Game *g) {
     // start with 10 asteroids
     for (int j=0; j<10; j++) {
 	Asteroid *a = new Asteroid;
-	a->nverts = 8;
+	a->nverts = 4;
 	a->radius = rnd()*80.0 + 40.0;
 	Flt r2 = a->radius / 2.0;
 	Flt angle = 0.0f;
@@ -306,14 +350,15 @@ void init(Game *g) {
 	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 	    angle += inc;
 	}
-	a->pos[0] = (Flt)(rand() % 800);
-	a->pos[1] = (Flt)(rand() % 600);
+	a->pos[0] = (Flt)(rand() % xres);
+	a->pos[1] = (Flt)(rand() % yres);
 	a->pos[2] = 0.0f;
 	a->angle = 0.0;
 	a->rotate = rnd() * 4.0 - 2.0;
 	a->color[0] = 0.4 + (j * 0.02);
 	a->color[1] = 0.4 + (j * 0.02);
 	a->color[2] = 0.3 + (j * 0.02);
+	a->color[3] = 0;
 	a->vel[0] = (Flt)(rnd()*2.0-1.0);
 	a->vel[1] = (Flt)(rnd()*2.0-1.0);
 	//std::cout << "asteroid" << std::endl;
@@ -451,7 +496,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 {
     //build ta from a
-    ta->nverts = 8;
+    ta->nverts = 4;
     ta->radius = a->radius / 2.0;
     Flt r2 = ta->radius / 2.0;
     Flt angle = 0.0f;
@@ -469,6 +514,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
     ta->color[0] = 0.8;
     ta->color[1] = 0.8;
     ta->color[2] = 0.7;
+    ta->color[3] = 0;
     ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
     ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
     //std::cout << "frag" << std::endl;
@@ -782,17 +828,45 @@ void render(Game *g)
 	    if( g->aTimer%15 == 0 && g->nasteroids <= 30 && g->aTimer != 0) {
 		resizeAsteroid(a);
 	    }
-	    glColor3fv(a->color);
+	    glColor4fv(a->color);
+	    asteroidtext = getPpm();
+	    glBindTexture(GL_TEXTURE_2D, asteroidtext);
 	    glPushMatrix();
 	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 	    glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-	    glBegin(GL_TRIANGLE_FAN);
-	    for (int j=0; j<a->nverts; j++) {
-		glVertex2f(a->vert[j][0], a->vert[j][1]);
-	    }
+	    glBegin(GL_QUADS);
+	    glTexCoord2f(0,1);
+	    glVertex2f(a->vert[0][0], a->vert[0][1]);
+	    glTexCoord2f(1,1);
+	    glVertex2f(a->vert[1][0], a->vert[1][1]);
+	    glTexCoord2f(1,0);
+	    glVertex2f(a->vert[2][0], a->vert[2][1]);
+	    glTexCoord2f(0,0);
+	    glVertex2f(a->vert[3][0], a->vert[3][1]);
 	    glEnd();
 	    glPopMatrix();
+
+	    glBindTexture(GL_TEXTURE_2D, 0);
+	    glBegin(GL_POINTS);
+	    glVertex2f(a->pos[0], a->pos[1]);
+	    glEnd();
 	    a = a->next;
+
+
+
+	    /*
+	       glColor3fv(a->color);
+	       glPushMatrix();
+	       glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+	       glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+	       glBegin(GL_TRIANGLE_FAN);
+	       for (int j=0; j<a->nverts; j++) {
+	       glVertex2f(a->vert[j][0], a->vert[j][1]);
+	       }
+	       glEnd();
+	       glPopMatrix();
+	       a = a->next;
+	       */
 	}
     }
     //-------------------------------------------------------------------------
@@ -822,7 +896,7 @@ void render(Game *g)
   int i;
 //draw thrust
 Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-//convert angle to a vector
+//convert angle to a vectors
 Flt xdir = cos(rad);
 Flt ydir = sin(rad);
 Flt xs,ys,xe,ye,r;
