@@ -1,3 +1,8 @@
+/* JoAnn Tuazon       *
+ * CMPS 335           *
+ * Advanced-Asteroids *
+ * Spring 2015        */
+
 #include "structures.h"
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
