@@ -817,7 +817,7 @@ void render(Game *g)
     {
 	Asteroid *a = g->ahead;
 	while (a) {
-	    if( g->aTimer%15 == 0 && g->nasteroids <= 200 && g->aTimer != 0) {
+	    if( g->aTimer%15 == 0 && g->nasteroids <= 30 && g->aTimer != 0) {
 		resizeAsteroid(a);
 	    }
 	    glColor3fv(a->color);
@@ -838,18 +838,19 @@ void render(Game *g)
     {
 	Bullet *b = g->bhead;
 	while (b) {
-	    glColor3f(1.0, 1.0, 1.0);
+	    float size = 1.0;
+	    glColor3f(0.0, 1.0, 0.0);
 	    glBegin(GL_POINTS);
 	    glVertex2f(b->pos[0],      b->pos[1]);
-	    glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-	    glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-	    glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-	    glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-	    glColor3f(0.8, 0.8, 0.8);
-	    glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-	    glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-	    glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-	    glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+	    glVertex2f(b->pos[0]-size, b->pos[1]);
+	    glVertex2f(b->pos[0]+size, b->pos[1]);
+	    glVertex2f(b->pos[0],      b->pos[1]-size);
+	    glVertex2f(b->pos[0],      b->pos[1]+size);
+	    glColor3f(0.0, 1.0, 0.0);
+	    glVertex2f(b->pos[0]-size, b->pos[1]-size);
+	    glVertex2f(b->pos[0]-size, b->pos[1]+size);
+	    glVertex2f(b->pos[0]+size, b->pos[1]-size);
+	    glVertex2f(b->pos[0]+size, b->pos[1]+size);
 	    glEnd();
 	    b = b->next;
 	}
