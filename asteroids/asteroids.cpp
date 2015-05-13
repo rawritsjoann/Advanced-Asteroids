@@ -102,27 +102,52 @@ int main(void)
     Game game;
     srand(time(NULL));
     int done=0;
+    
+    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glBegin(GL_QUADS);
+    glColor3f(1.0f,0.0f,0.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
+    glEnd();
 
 
     while (done != 1) {
-	Rect r;
-	r.bot = yres - 100;
-	r.left = 500;
-	r.center = 0;
-	ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
-	ggprint16(&r, 36, 0x00ffff00, "Press H for Help or S to Start Playing");
 	while (XPending(dpy)) {
 	    XEvent e;
 	    XNextEvent(dpy, &e);
 	    check_resize(&e);
 	    check_mouse(&e);
 	    done = check_keys(&e);
+	    Rect r;
+	    r.bot = yres - 100;
+	    r.left = 525;
+	    r.center = 0;
+	    ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
+	    r.bot = yres - 500;
+	    r.left = 275;
+	    ggprint16(&r, 36, 0x00ffff00, "S: START GAME          C: CONTROLS            H: HOW TO           ESC: Exit Game");
 	    if(done == 2){
-		std::cout << "Help Menu" << std::endl;
-		r.bot = yres - 300;
-		r.left = 500;
-		ggprint16(&r, 16, 0x00ffff00, "This is the HELP menu");
-		ggprint16(&r, 16, 0x00ffff00, "Press S to start game");
+		std::cout << "Controls Menu" << std::endl;
+		r.bot = yres - 250;
+		r.left = 275;
+		ggprint16(&r, 36, 0x00ffff00, "Arrow <-                Turn ship left");
+		ggprint16(&r, 36, 0x00ffff00, "Arrow ->                Turn ship right");
+		ggprint16(&r, 36, 0x00ffff00, "Arrow ^                 Accelerate ship");
+		ggprint16(&r, 36, 0x00ffff00, "Space                    Shoot Gun");
+		
+	    }
+	    if(done == 5){
+		r.bot = yres - 200;
+		r.left = 700;
+		ggprint16(&r, 36, 0x00ffff00, " - Shoot asteroids to make them explode");
+		ggprint16(&r, 36, 0x00ffff00, " - When hit, asteroids break into smaller asteroids");
+		ggprint16(&r, 20, 0x00ffff00, " - Some asteroids will revert to starting size");
+		ggprint16(&r, 36, 0x00ffff00, "   at a set interval");
+		ggprint16(&r, 20, 0x00ffff00, " - After hitting a set number of asteroids your ship");
+		ggprint16(&r, 36, 0x00ffff00, "   will go into SUPERMODE");
+		ggprint16(&r, 36, 0x00ffff00, " - Eliminate all asteroids to win");
 	    }
 	    if(done == 3){
 		play_music();;
@@ -394,14 +419,14 @@ int check_keys(XEvent *e)
     switch(key) {
 	case XK_Escape:
 	    return 1;
-	case XK_h:
+	case XK_c:
 	    return 2;
 	case XK_s:
 	    return 3;
 	case XK_p:
 	    return 4;
-	case XK_equal:
-	    break;
+	case XK_h:
+	    return 5;
 	case XK_minus:
 	    break;
     }
@@ -792,7 +817,7 @@ void render(Game *g)
     {
 	Asteroid *a = g->ahead;
 	while (a) {
-	    if( g->aTimer%15 == 0 && g->nasteroids <= 200) {
+	    if( g->aTimer%15 == 0 && g->nasteroids <= 200 && g->aTimer != 0) {
 		resizeAsteroid(a);
 	    }
 	    glColor3fv(a->color);
