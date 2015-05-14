@@ -29,6 +29,7 @@
 #include "solidSphere.h"
 #include "structures.h"
 #include "drewC.cpp"
+#include "ajS.cpp"
 #include "michaelW.cpp"
 #include "joannT.cpp"
 extern "C" {
@@ -278,7 +279,7 @@ void init_opengl(void)
     load_background();
 }
 
-GLuint getPpm()
+/*GLuint getPpm()
 {
     //load images into a ppm structure
     //Ppm tmp;
@@ -312,7 +313,7 @@ GLuint getPpm()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     return returningTex;
-}
+}*/
 
 
 void check_resize(XEvent *e)
