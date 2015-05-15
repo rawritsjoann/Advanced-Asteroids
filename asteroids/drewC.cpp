@@ -9,7 +9,7 @@
 void resizeAsteroid(Asteroid *a)
 {
     if( a->radius < 40 && a->radius > 20 ) {
-	a->nverts = 8;
+	a->nverts = 4;
 	a->radius = rnd()*80.0 + 40.0;
 	Flt r2 = a->radius / 2.0;
 	Flt angle = 0.0f;
@@ -32,7 +32,7 @@ void asteroidCollision(Asteroid *a, Game *g)
 	d0 = g->ship.pos[0] - a->pos[0];
 	d1 = g->ship.pos[1] - a->pos[1];
 	dist = (d0*d0 + d1*d1);
-	if(dist < (a->radius * a->radius)) {
+	if(dist < (a->radius * a->radius) * 0.5) {
 	    g->ship.pos[0] = a->pos[0] + d0 * 1.5;
 	    g->ship.pos[1] = a->pos[1] + d1 * 1.5;
 	    g->ship.vel[0] *= -0.5f;

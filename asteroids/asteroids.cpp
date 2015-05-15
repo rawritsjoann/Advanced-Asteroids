@@ -279,42 +279,6 @@ void init_opengl(void)
     load_background();
 }
 
-/*GLuint getPpm()
-{
-    //load images into a ppm structure
-    //Ppm tmp;
-    asteroidTex = ppm6GetImage((char*)"./images/generic.ppm");
-    int w = asteroidTex->width;
-    int h = asteroidTex->height;
-    unsigned char tmpArr[w*h*3];
-    unsigned char *t = asteroidTex->data;
-    unsigned char dataWithAlpha[w*h*4];
-
-    for(int i=0; i<(w*h*3); i++){
-	tmpArr[i] = *(t+i);
-    }
-    // apply the alpha channel
-    for(int i=0; i<(w*h); i++){
-	// copy color to new array
-	dataWithAlpha[i*4] = tmpArr[3 * i];
-	dataWithAlpha[i*4 + 1] = tmpArr[ 3 * i + 1];
-	dataWithAlpha[i*4 + 2] = tmpArr[ 3 * i + 2];
-	// set alpha
-	dataWithAlpha[i*4+3]=((int)tmpArr[i*3] | (int)tmpArr[i*3+1] | (int)tmpArr[i*3+2] );
-    }
-
-
-    GLuint returningTex;
-    //
-    glGenTextures(1, &returningTex);
-    glBindTexture(GL_TEXTURE_2D, returningTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataWithAlpha);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    return returningTex;
-}*/
-
 
 void check_resize(XEvent *e)
 {
@@ -361,9 +325,9 @@ void init(Game *g) {
 	g->ahead = a;
 	g->nasteroids++;
     }
+    asteroidtext = getPpm();
     clock_gettime(CLOCK_REALTIME, &g->bulletTimer);
     clock_gettime(CLOCK_REALTIME, &g->asteroidTimer);
-    clock_gettime(CLOCK_REALTIME, &g->ship.superTimer);
     memset(keys, 0, 65536);
 }
 
@@ -491,6 +455,9 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
     //build ta from a
     ta->nverts = 4;
     ta->radius = a->radius / 2.0;
+    if(ta->radius < 5) {
+	ta->radius = 5;
+    }
     Flt r2 = ta->radius / 2.0;
     Flt angle = 0.0f;
     Flt inc = (PI * 2.0) / (Flt)ta->nverts;
@@ -532,9 +499,14 @@ void physics(Game *g)
     else if (g->ship.pos[1] > (float)yres) {
 	g->ship.pos[1] -= (float)yres;
     }
+    
+    
     //Ship collision with asteroids
     Asteroid *a = g->ahead;
     asteroidCollision(a,g);
+    
+    
+    
     //Update bullet positions
     struct timespec bt;
     clock_gettime(CLOCK_REALTIME, &bt);
@@ -604,7 +576,7 @@ void physics(Game *g)
 	    if (dist < (a->radius*a->radius)) {
 		//this asteroid is hit.
 		g->ship.superMode++;
-		if (a->radius > 25.0) {
+		if (a->radius > 30.0) {
 		    //break it into pieces.
 		    Asteroid *ta = a;
 		    buildAsteroidFragment(ta, a);
@@ -732,18 +704,14 @@ void render(Game *g)
     //-------------------------------------------------------------------------
     //Draw the ship
 
-    struct timespec sm;
-    clock_gettime(CLOCK_REALTIME, &sm);
-    if( g->ship.superMode >= 5 ) {
-	g->ship.superTime = timeDiff(&g->ship.superTimer, &sm);
+    if( g->ship.superMode >= 100 ) {
 	int x, y, z;
 	x = random(3);
 	y = random(3);
 	z = random(3);
 	glColor3f(x,y,z);
-	if(g->ship.superTime > 30) {
+	if(g->ship.superMode >= 150) {
 	    g->ship.superMode = 0;
-	    g->ship.superTime = 0;
 	}
     } else { 
 	glColor3fv(g->ship.color);
@@ -790,13 +758,14 @@ void render(Game *g)
     //-------------------------------------------------------------------------
     //Draw the asteroids
     {
+
 	Asteroid *a = g->ahead;
 	while (a) {
 	    if( g->aTimer%15 == 0 && g->nasteroids <= 30 && g->aTimer != 0) {
 		resizeAsteroid(a);
 	    }
+	    
 	    glColor4fv(a->color);
-	    asteroidtext = getPpm();
 	    glBindTexture(GL_TEXTURE_2D, asteroidtext);
 	    glPushMatrix();
 	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -819,9 +788,8 @@ void render(Game *g)
 	    glEnd();
 	    a = a->next;
 
-
-
-	    /*
+/*
+	    
 	       glColor3fv(a->color);
 	       glPushMatrix();
 	       glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -833,7 +801,7 @@ void render(Game *g)
 	       glEnd();
 	       glPopMatrix();
 	       a = a->next;
-	       */
+	 */      
 	}
     }
     //-------------------------------------------------------------------------

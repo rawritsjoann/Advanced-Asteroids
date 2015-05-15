@@ -7,9 +7,7 @@
 
 #include <GL/glx.h>
 #include "ppm.h"
-extern struct Game *game;
-extern struct Game *g;
-extern struct Ship *s;
+#include "structures.h"
 
 Ppmimage *shipImage = NULL;
 GLuint shipTexture;
