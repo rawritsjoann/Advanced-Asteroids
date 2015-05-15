@@ -206,7 +206,7 @@ void set_title(void)
 {
     //Set the window title bar.
     XMapWindow(dpy, win);
-    XStoreName(dpy, win, "CS335 - Asteroids template");
+    XStoreName(dpy, win, "CS335 - Advanced Asteroids");
 }
 
 void setup_screen_res(const int w, const int h)
