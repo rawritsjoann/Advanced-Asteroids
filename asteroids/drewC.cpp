@@ -25,3 +25,22 @@ void resizeAsteroid(Asteroid *a)
     }
 }
 
+void asteroidCollision(Asteroid *a, Game *g)
+{
+    while(a) {
+	Flt d0, d1, dist;
+	d0 = g->ship.pos[0] - a->pos[0];
+	d1 = g->ship.pos[1] - a->pos[1];
+	dist = (d0*d0 + d1*d1);
+	if(dist < (a->radius * a->radius)) {
+	    g->ship.pos[0] = a->pos[0] + d0 * 1.5;
+	    g->ship.pos[1] = a->pos[1] + d1 * 1.5;
+	    g->ship.vel[0] *= -0.5f;
+	    g->ship.vel[1] *= -0.5f;
+	    a->vel[0] += g->ship.vel[0] * -0.5;
+	    a->vel[1] += g->ship.vel[1] * -0.5;
+	}
+	a = a->next;
+    }
+    return;
+}

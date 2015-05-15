@@ -343,8 +343,8 @@ void init(Game *g) {
 	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 	    angle += inc;
 	}
-	a->pos[0] = (Flt)(rand() % xres);
-	a->pos[1] = (Flt)(rand() % yres);
+	a->pos[0] = ((Flt)(rand() % xres))+500;
+	a->pos[1] = ((Flt)(rand() % yres))+500;
 	a->pos[2] = 0.0f;
 	a->angle = 0.0;
 	a->rotate = rnd() * 4.0 - 2.0;
@@ -534,21 +534,7 @@ void physics(Game *g)
     }
     //Ship collision with asteroids
     Asteroid *a = g->ahead;
-    while(a) {
-	d0 = g->ship.pos[0] - a->pos[0];
-	d1 = g->ship.pos[1] - a->pos[1];
-	dist = (d0*d0 + d1*d1);
-	if(dist < (a->radius * a->radius)) {
-	    g->ship.pos[0] = a->pos[0] + d0 * 1.5;
-	    g->ship.pos[1] = a->pos[1] + d1 * 1.5;
-	    g->ship.vel[0] *= -0.5f;
-	    g->ship.vel[1] *= -0.5f;
-
-	    a->vel[0] += g->ship.vel[0] * -0.5;
-	    a->vel[1] += g->ship.vel[1] * -0.5;
-	}
-	a = a->next;
-    }
+    asteroidCollision(a,g);
     //Update bullet positions
     struct timespec bt;
     clock_gettime(CLOCK_REALTIME, &bt);
