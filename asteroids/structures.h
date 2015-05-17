@@ -65,7 +65,7 @@ struct Asteroid {
     Vec vert[8];
     float angle;
     float rotate;
-    float color[4];
+    float color[3];
     struct Asteroid *prev;
     struct Asteroid *next;
     Asteroid() {
@@ -80,7 +80,8 @@ struct Game {
     Bullet *bhead;
     int nasteroids;
     int nbullets;
-    int aTimer;
+    int gameTimer;
+    unsigned long int score;
     struct timespec bulletTimer;
     struct timespec asteroidTimer;
     Game() {
@@ -88,7 +89,8 @@ struct Game {
 	bhead = NULL;
 	nasteroids = 0;
 	nbullets = 0;
-	aTimer = 0;
+	gameTimer = 0;
+	score = 0;
     }
 };
 

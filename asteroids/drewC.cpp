@@ -19,16 +19,16 @@ void resizeAsteroid(Asteroid *a)
 	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 	    angle += inc;
 	}
-	a->color[0] = 1.0;
-	a->color[1] = 0.0;
-	a->color[2] = 0.0;
+	a->color[0] = 0.75;
+	a->color[1] = 0.75;
+	a->color[2] = 0.75;
     }
 }
 
 void asteroidCollision(Asteroid *a, Game *g)
 {
     while(a) {
-	Flt d0, d1, dist;
+	float d0, d1, dist;
 	d0 = g->ship.pos[0] - a->pos[0];
 	d1 = g->ship.pos[1] - a->pos[1];
 	dist = (d0*d0 + d1*d1);
