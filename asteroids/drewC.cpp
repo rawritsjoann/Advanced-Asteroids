@@ -5,42 +5,52 @@
 #include <cmath>
 #include "structures.h"
 
-
 void resizeAsteroid(Asteroid *a)
 {
-    if( a->radius < 40 && a->radius > 20 ) {
-	a->nverts = 4;
-	a->radius = rnd()*80.0 + 40.0;
-	Flt r2 = a->radius / 2.0;
-	Flt angle = 0.0f;
-	Flt inc = (PI * 2.0) / (Flt)a->nverts;
-	for (int i=0; i<a->nverts; i++) {
-	    a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-	    a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-	    angle += inc;
-	}
-	a->color[0] = 0.75;
-	a->color[1] = 0.75;
-	a->color[2] = 0.75;
-    }
+	if (a->radius < 50 && a->radius > 25) {
+		a->nverts = 4;
+		a->radius = rnd()*80.0 + 40.0;
+		Flt r2 = a->radius / 2.0;
+		Flt angle = 0.0f;
+		Flt inc = (PI * 2.0) / (Flt)a->nverts;
+		for (int i=0; i<a->nverts; i++) {
+			a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+			a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+			angle += inc;
+		}
+		a->color[0] = 1;
+		a->color[1] = 0.0;
+		a->color[2] = 0.0;
+	} 
 }
 
 void asteroidCollision(Asteroid *a, Game *g)
 {
-    while(a) {
-	float d0, d1, dist;
-	d0 = g->ship.pos[0] - a->pos[0];
-	d1 = g->ship.pos[1] - a->pos[1];
-	dist = (d0*d0 + d1*d1);
-	if(dist < (a->radius * a->radius) * 0.5) {
-	    g->ship.pos[0] = a->pos[0] + d0 * 1.5;
-	    g->ship.pos[1] = a->pos[1] + d1 * 1.5;
-	    g->ship.vel[0] *= -0.5f;
-	    g->ship.vel[1] *= -0.5f;
-	    a->vel[0] += g->ship.vel[0] * -0.5;
-	    a->vel[1] += g->ship.vel[1] * -0.5;
+	while (a) {
+		float d0, d1, dist, velocity;
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		dist = (d0*d0 + d1*d1);
+		if (dist < (a->radius * a->radius) * 0.5) {
+			//Calculate damage taken from impact with asteroid
+			velocity = abs(g->ship.vel[0] + g->ship.vel[1]);
+			if (velocity >= 2.5) {
+				g->ship.damageTaken += 5;
+			}
+			else if (velocity >= 1.5) {
+				g->ship.damageTaken += 2;
+			} else {
+				g->ship.damageTaken++;
+			}
+			//Alter ships position and velocity	
+			g->ship.pos[0] = a->pos[0] + d0 * 1.5;
+			g->ship.pos[1] = a->pos[1] + d1 * 1.5;
+			g->ship.vel[0] *= -0.5f;
+			g->ship.vel[1] *= -0.5f;
+			a->vel[0] += g->ship.vel[0] * -0.5;
+			a->vel[1] += g->ship.vel[1] * -0.5;
+		}
+		a = a->next;
 	}
-	a = a->next;
-    }
-    return;
+	return;
 }

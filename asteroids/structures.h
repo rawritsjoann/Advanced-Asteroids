@@ -27,8 +27,8 @@ struct Ship {
     float angle;
     float color[3];
     int superMode;
-    int superTime;
     struct timespec superTimer;
+    int damageTaken;
     Ship() {
 	VecZero(dir);
 	pos[0] = (Flt)(xres/2);
@@ -40,7 +40,7 @@ struct Ship {
 	color[1] = 1.0;
 	color[2] = 1.0;
 	superMode = 0;
-	superTime = 0;
+	damageTaken = 0;
     }
 };
 
@@ -62,7 +62,7 @@ struct Asteroid {
     Vec vel;
     int nverts;
     Flt radius;
-    Vec vert[8];
+    Vec vert[4];
     float angle;
     float rotate;
     float color[3];

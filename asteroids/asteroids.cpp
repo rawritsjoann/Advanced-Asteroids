@@ -363,6 +363,7 @@ void deleteBullet(Game *g, Bullet *node)
 	}
 	delete node;
 	node = NULL;
+	g->nbullets--;
 }
 
 void deleteAsteroid(Game *g, Asteroid *node)
@@ -391,9 +392,9 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 {
 	//build ta from a
 	ta->nverts = 4;
-	ta->radius = a->radius / 2.0;
-	if(ta->radius < 5) {
-		ta->radius = 5;
+	ta->radius = a->radius / 1.5;
+	if(ta->radius < 20.0f) {
+		ta->radius = 20.0f;
 	}
 	Flt r2 = ta->radius / 2.0;
 	Flt angle = 0.0f;
@@ -522,7 +523,11 @@ void physics(Game *g)
 					//break it into pieces.
 					Asteroid *ta = a;
 					buildAsteroidFragment(ta, a);
-					int r = rand()%10+5;
+					int r;
+					if (g->nasteroids > 100) { r = 2; }
+					else if (g->nasteroids > 50) { r = 4; }
+					else { r = 5; }
+					//int r = rand() % 2+3; //# OF FRAGMENTS
 					for (int k=0; k<r; k++) {
 						//get the next asteroid position in the array
 						Asteroid *ta = new Asteroid;
@@ -546,7 +551,6 @@ void physics(Game *g)
 				Bullet *saveb = b->next;
 				deleteBullet(g, b);
 				b = saveb;
-				g->nbullets--;
 				if (a == NULL)
 					break;
 				continue;
@@ -628,6 +632,7 @@ void render(Game *g)
 	draw_background();
 
 	struct timespec at;
+	int yellow = 0x00ffff00;
 	clock_gettime(CLOCK_REALTIME, &at);
 	g->gameTimer = timeDiff(&g->asteroidTimer, &at);
 
@@ -635,30 +640,29 @@ void render(Game *g)
 	r.bot = yres - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
-	ggprint8b(&r, 16, 0x00ffff00, "Game time: %i", g->gameTimer);
-	ggprint8b(&r, 16, 0x00ffff00, "Super Mode: %i", g->ship.superMode);
-	ggprint8b(&r, 16, 0x00ffff00, "Super Time: %i", g->ship.superTime);
-	ggprint8b(&r, 16, 0x00ffff00, "Score: %i", g->score);
+	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Advanced Asteroids");
+	ggprint8b(&r, 16, yellow, "n asteroids: %i", g->nasteroids);
+	ggprint8b(&r, 16, yellow, "Game time: %i", g->gameTimer);
+	ggprint8b(&r, 16, yellow, "Super Mode: %i", g->ship.superMode);
+	ggprint8b(&r, 16, yellow, "Score: %i", g->score);
+	ggprint8b(&r, 16, yellow, "Damage: %i", g->ship.damageTaken);
 
 
 	//-------------------------------------------------------------------------
 	//Draw the ship
 
-	if( g->ship.superMode >= 100 ) {
+	if( g->ship.superMode >= 50 ) {
 		int x, y, z;
 		x = random(3);
 		y = random(3);
 		z = random(3);
 		glColor3f(x,y,z);
-		if(g->ship.superMode >= 150) {
+		if(g->ship.superMode >= 300) {
 			g->ship.superMode = 0;
 		}
 	} else { 
 		glColor3fv(g->ship.color);
 	}
-	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	setShipTexture(g);
 	glColor3f(1.0f,0.0f,0.0f);
 	glBegin(GL_POINTS);
@@ -703,7 +707,10 @@ void render(Game *g)
 
 		Asteroid *a = g->ahead;
 		while (a) {
-			if( g->gameTimer%15 == 0 && g->nasteroids <= 30 && g->gameTimer != 0) {
+			if( g->gameTimer%15 == 0 
+					&& g->nasteroids <= 20 
+					&& g->gameTimer != 0 
+					&& g->score > 100) {
 				resizeAsteroid(a);
 			}
 
@@ -724,26 +731,13 @@ void render(Game *g)
 			glEnd();
 			glPopMatrix();
 
+			//Center Point Dot
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glBegin(GL_POINTS);
 			glVertex2f(a->pos[0], a->pos[1]);
 			glEnd();
+			//next asteroid
 			a = a->next;
-
-			/*
-
-			   glColor3fv(a->color);
-			   glPushMatrix();
-			   glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			   glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			   glBegin(GL_TRIANGLE_FAN);
-			   for (int j=0; j<a->nverts; j++) {
-			   glVertex2f(a->vert[j][0], a->vert[j][1]);
-			   }
-			   glEnd();
-			   glPopMatrix();
-			   a = a->next;
-			   */      
 		}
 	}
 	//-------------------------------------------------------------------------
@@ -769,69 +763,3 @@ void render(Game *g)
 		}
 	}
 }
-/*if (keys[XK_Up]) {
-  int i;
-//draw thrust
-Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-//convert angle to a vectors
-Flt xdir = cos(rad);
-Flt ydir = sin(rad);
-Flt xs,ys,xe,ye,r;
-for (i=0; i<16; i++) {
-glBegin(GL_LINES);
-xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-r = rnd()*80.0+80.0;
-
-xe = -xdir * r + rnd() * 18.0 - 9.0;
-ye = -ydir * r + rnd() * 18.0 - 9.0;
-if(r < 26.0) {
-glColor3f(.128, 0.781, .878);
-} else {
-if(r >26 && r <= 52) {
-glColor3f(.128, 0.835, .128);
-}
-else {
-glColor3f(.972, 0.113, .074);
-
-}
-}
-glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
-glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
-glEnd();
-cout << r<<endl;
-}
-}*/
-//-------------------------------------------------------------------------
-/*//Draw the asteroids
-  {
-  Asteroid *a = g->ahead;
-  while (a) {
-  glColor3fv(a->color);
-  glPushMatrix();
-  glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-  glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-  glBegin(GL_TRIANGLES);
-  for (int j=0; j<a->nverts-2; j++) {
-  glVertex2f(a->vert[j][0], a->vert[j][1]);
-  glVertex2f(a->vert[j+1][0], a->vert[j+1][1]);
-  glVertex2f(a->vert[7][0], a->vert[7][1]);
-  }
-  glEnd();
-//glBegin(GL_LINES);
-//	glVertex2f(0,   0);
-//	glVertex2f(a->radius, 0);
-//glEnd();
-glPopMatrix();
-glColor3f(1.0f, 0.0f, 0.0f);
-glBegin(GL_POINTS);
-glVertex2f(a->pos[0], a->pos[1]);
-glEnd();
-a = a->next;
-}
-}*/
-//-------------------------------------------------------------------------
-//Draw the bullets
-
-
-
