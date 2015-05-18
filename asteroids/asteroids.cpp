@@ -107,24 +107,25 @@ int main(void)
 	    done = check_keys(&e);
 	    Rect r;
 	    r.bot = yres - 100;
-	    r.left = 525;
+	    r.left = 500;
 	    r.center = 0;
 	    ggprint16(&r, 36, 0x00ffff00, "ADVANCED ASTEROIDS");
 	    r.bot = yres - 500;
-	    r.left = 275;
+	    r.left = 250;
 	    ggprint16(&r, 36, 0x00ffff00, "S: START GAME          C: CONTROLS            H: HOW TO           ESC: Exit Game");
 	    if(done == 2){
-		r.bot = yres - 250;
-		r.left = 275;
+		r.bot = yres - 200;
+		r.left = 250;
 		ggprint16(&r, 36, 0x00ffff00, "Arrow <-                Turn ship left");
 		ggprint16(&r, 36, 0x00ffff00, "Arrow ->                Turn ship right");
 		ggprint16(&r, 36, 0x00ffff00, "Arrow ^                 Accelerate ship");
+		ggprint16(&r, 36, 0x00ffff00, "Arrow v                 Brakes/Reverse");
 		ggprint16(&r, 36, 0x00ffff00, "Space                    Shoot Gun");
 
 	    }
 	    if(done == 5){
 		r.bot = yres - 200;
-		r.left = 700;
+		r.left = 675;
 		ggprint16(&r, 36, 0x00ffff00, " - Shoot asteroids to make them explode");
 		ggprint16(&r, 36, 0x00ffff00, " - When hit, asteroids break into smaller asteroids");
 		ggprint16(&r, 20, 0x00ffff00, " - Some asteroids will revert to starting size");
@@ -266,7 +267,7 @@ void check_resize(XEvent *e)
 
 void init(Game *g) {
     // start with 10 asteroids
-    for (int j=0; j<10; j++) {
+    for (int j=0; j<1; j++) {
 	Asteroid *a = new Asteroid;
 	a->nverts = 4;
 	a->radius = rnd()*80.0 + 40.0;
@@ -511,6 +512,7 @@ void physics(Game *g)
 	    dist = (d0*d0 + d1*d1);
 	    if (dist < (a->radius*a->radius)) {
 		//this asteroid is hit.
+		g->bulletsHit++;
 		g->ship.superMode++;
 		if (abs(g->ship.vel[0] + g->ship.vel[1]) > 0.5f) {
 		    g->score += 10;
@@ -642,6 +644,7 @@ void physics(Game *g)
 		g->bhead->prev = b;
 	    g->bhead = b;
 	    g->nbullets++;
+	    g->bulletsFired++;
 	}
     }
 }
@@ -658,7 +661,7 @@ void render(Game *g)
 	g->gameTimer = timeDiff(&g->asteroidTimer, &at);
 
 	Rect r;
-	r.bot = yres - 20;
+	r.bot = yres - 30;
 	r.left = 10;
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Advanced Asteroids");
@@ -667,6 +670,10 @@ void render(Game *g)
 	ggprint8b(&r, 16, yellow, "Super Mode: %i", g->ship.superMode);
 	ggprint8b(&r, 16, yellow, "Score: %i", g->score);
 	ggprint8b(&r, 16, yellow, "Damage: %i", g->ship.damageTaken);
+	//ggprint16(&r, 20, yellow, "Hit: %i", g->bulletsHit);
+	//ggprint16(&r, 20, yellow, "Fired: %i", g->bulletsFired);
+	//ggprint16(&r, 20, yellow, "Accuracy: %f%", g->accuracy);
+
 
 
 	//-------------------------------------------------------------------------
@@ -680,10 +687,10 @@ void render(Game *g)
 	    z = random(3);
 	    glColor3f(x,y,z);
 	    if(g->ship.superMode >= 150) {
+	    	//fmod_stopsound(1); /*Not a Function*/
 		g->ship.superMode = 0;
 	    }
 	} else {
-	    //fmod_stopsound(1); /*Not a Function*/
 	    glColor3fv(g->ship.color);
 	}
 	setShipTexture(g);

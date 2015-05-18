@@ -81,6 +81,9 @@ struct Game {
     int nasteroids;
     int nbullets;
     int gameTimer;
+    int bulletsFired;
+    int bulletsHit;
+    float accuracy;
     bool gameOver;
     unsigned long int score;
     struct timespec bulletTimer;
@@ -93,6 +96,9 @@ struct Game {
 	gameTimer = 0;
 	score = 0;
 	gameOver = false;
+	bulletsFired = 0;
+	bulletsHit = 0;
+	accuracy = 0.0;
     }
 };
 
