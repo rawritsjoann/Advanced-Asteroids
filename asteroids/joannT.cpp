@@ -22,11 +22,16 @@ void init_sounds(void)
 	printf("ERROR");
 	return;
     }
+    if(fmod_createsound((char *)"./sounds/starpower.mp3", 1)) {
+	printf("ERROR");
+	return;
+    }
     fmod_setmode(0,FMOD_LOOP_NORMAL);
+	fmod_setmode(1,FMOD_LOOP_NORMAL);
 }
 
-void play_music() {
-    fmod_playsound(0);
+void play_music(int a) {
+    fmod_playsound(a);
 }
 
 

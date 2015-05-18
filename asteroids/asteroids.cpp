@@ -674,12 +674,14 @@ void render(Game *g)
 	//Draw the ship
 
 	if( g->ship.superMode >= 50 ) {
+		play_music(1)
 	    int x, y, z;
 	    x = random(3);
 	    y = random(3);
 	    z = random(3);
 	    glColor3f(x,y,z);
 	    if(g->ship.superMode >= 150) {
+		fmod_stopsound(1);
 		g->ship.superMode = 0;
 	    }
 	} else { 
