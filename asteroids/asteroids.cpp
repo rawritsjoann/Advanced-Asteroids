@@ -64,7 +64,6 @@ int xres=1250, yres=900;
 
 GLuint asteroidtext;
 int play_sounds = 0;
-bool reset = false;
 
 int keys[65536];
 
@@ -135,7 +134,7 @@ int main(void)
 		ggprint16(&r, 36, 0x00ffff00, " - Eliminate all asteroids to win");
 	    }
 	    if(done == 3){
-		play_music();
+		play_music(0);
 		init(&game);
 		break;
 	    }
@@ -674,17 +673,17 @@ void render(Game *g)
 	//Draw the ship
 
 	if( g->ship.superMode >= 50 ) {
-		play_music(1)
+		play_music(1);
 	    int x, y, z;
 	    x = random(3);
 	    y = random(3);
 	    z = random(3);
 	    glColor3f(x,y,z);
 	    if(g->ship.superMode >= 150) {
-		fmod_stopsound(1);
 		g->ship.superMode = 0;
 	    }
-	} else { 
+	} else {
+	    //fmod_stopsound(1); /*Not a Function*/
 	    glColor3fv(g->ship.color);
 	}
 	setShipTexture(g);
