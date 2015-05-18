@@ -81,7 +81,7 @@ struct Game {
     int nasteroids;
     int nbullets;
     int gameTimer;
-	bool gameOver;
+    bool gameOver;
     unsigned long int score;
     struct timespec bulletTimer;
     struct timespec asteroidTimer;

@@ -47,9 +47,6 @@ void asteroidCollision(Asteroid *a, Game *g)
 			} else {
 				g->ship.damageTaken++;
 			}
-			if ( g->ship.damageTaken >= 100 ) {
-				g->gameOver = true;
-			}
 			//Alter ships position and velocity	
 			g->ship.pos[0] = a->pos[0] + d0 * 1.5;
 			g->ship.pos[1] = a->pos[1] + d1 * 1.5;
@@ -64,13 +61,12 @@ void asteroidCollision(Asteroid *a, Game *g)
 
 bool endGame(Game *g)
 {
-	if (g->ship.damageTaken >= 10) {
+	if (g->ship.damageTaken >= 100 || g->nasteroids == 0) {
 		return true;
 	} else {
 		return false;
 	}
 }
-
 void endMenu(Game *g)
 {
 	int yellow = 0x00ffff00;
@@ -82,6 +78,7 @@ void endMenu(Game *g)
 	ggprint16(&r, 50, yellow, "Your Score: %i", g->score);
 	ggprint16(&r, 50, yellow, "Your Time: %i seconds",g->gameTimer);
 	r.bot = yres - 600;
+	//ggprint16(&r, 50, red, "Press R to Restart");
 	ggprint16(&r, 50, yellow, "Press ESC to Exit");
 }
 
