@@ -267,7 +267,7 @@ void check_resize(XEvent *e)
 
 void init(Game *g) {
     // start with 10 asteroids
-    for (int j=0; j<1; j++) {
+    for (int j=0; j<10; j++) {
 	Asteroid *a = new Asteroid;
 	a->nverts = 4;
 	a->radius = rnd()*80.0 + 40.0;
