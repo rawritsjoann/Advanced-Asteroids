@@ -92,7 +92,7 @@ int main(void)
 
     glBindTexture(GL_TEXTURE_2D, bgTexture);
     glBegin(GL_QUADS);
-    glColor3f(1.0f,0.0f,0.0f);
+    glColor4f(1.0f,0.0f,0.0f,1);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
     glTexCoord2f(0.0f, 0.0f); glVertex2i(0, yres);
     glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
@@ -247,6 +247,9 @@ void init_opengl(void)
     glClearColor(0.0, 0.0, 0.0, 1.0);
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+	  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     initialize_fonts();
     load_background();
 }
@@ -504,7 +507,7 @@ void physics(Game *g)
     a = g->ahead;
     while (a) {
 	//is there a bullet within its radius?
-	glColor3fv(a->color);
+	glColor4f(a->color[0],a->color[1],a->color[2],1.0f);
 	Bullet *b = g->bhead;
 	while (b) {
 	    d0 = b->pos[0] - a->pos[0];
@@ -685,16 +688,16 @@ void render(Game *g)
 	    x = random(3);
 	    y = random(3);
 	    z = random(3);
-	    glColor3f(x,y,z);
+	    glColor4f(x,y,z,1.0f);
 	    if(g->ship.superMode >= 150) {
 	    	//fmod_stopsound(1); /*Not a Function*/
 		g->ship.superMode = 0;
 	    }
 	} else {
-	    glColor3fv(g->ship.color);
+	    glColor4f(g->ship.color[0],g->ship.color[1],g->ship.color[2],1.0f);
 	}
 	setShipTexture(g);
-	glColor3f(1.0f,0.0f,0.0f);
+	glColor4f(1.0f,0.0f,0.0f,1.0f);
 	glBegin(GL_POINTS);
 	glVertex2f(0.0f,0.0f);
 	glEnd();
@@ -717,13 +720,13 @@ void render(Game *g)
 		xe = -xdir * r + rnd() * 18.0 - 9.0;
 		ye = -ydir * r + rnd() * 18.0 - 9.0;
 		if(r < 26.0) {
-		    glColor3f(9.0f,9.0f,9.0f);
+		    glColor4f(9.0f,9.0f,9.0f,1.0f);
 		} else {
 		    if(r >26 && r <= 52) {
-			glColor3f(9.0f,9.0f,0.0f);
+			glColor4f(9.0f,9.0f,0.0f,1.0f);
 		    }
 		    else {
-			glColor3f(9.0f,0.0f,0.0f);
+			glColor4f(9.0f,0.0f,0.0f,1.0f);
 		    }
 		}
 		glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
@@ -744,7 +747,7 @@ void render(Game *g)
 		    resizeAsteroid(a);
 		}
 
-		glColor4fv(a->color);
+		glColor4f(a->color[0],a->color[1],a->color[2],1.0f);
 		glBindTexture(GL_TEXTURE_2D, asteroidtext);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -776,14 +779,14 @@ void render(Game *g)
 	    Bullet *b = g->bhead;
 	    while (b) {
 		float size = 1.0;
-		glColor3f(0.0, 1.0, 0.0);
+		glColor4f(0.0, 1.0, 0.0,1.0f);
 		glBegin(GL_POINTS);
 		glVertex2f(b->pos[0],      b->pos[1]);
 		glVertex2f(b->pos[0]-size, b->pos[1]);
 		glVertex2f(b->pos[0]+size, b->pos[1]);
 		glVertex2f(b->pos[0],      b->pos[1]-size);
 		glVertex2f(b->pos[0],      b->pos[1]+size);
-		glColor3f(0.0, 1.0, 0.0);
+		glColor4f(0.0, 1.0, 0.0,1.0f);
 		glVertex2f(b->pos[0]-size, b->pos[1]-size);
 		glVertex2f(b->pos[0]-size, b->pos[1]+size);
 		glVertex2f(b->pos[0]+size, b->pos[1]-size);

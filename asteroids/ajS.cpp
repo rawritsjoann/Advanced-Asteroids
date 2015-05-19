@@ -29,7 +29,10 @@ GLuint getPpm()
 	dataWithAlpha[i*4 + 1] = tmpArr[ 3 * i + 1];
 	dataWithAlpha[i*4 + 2] = tmpArr[ 3 * i + 2];
 	// set alpha
-	dataWithAlpha[i*4+3]=((int)tmpArr[i*3] | (int)tmpArr[i*3+1] | (int)tmpArr[i*3+2] );
+	if((int)tmpArr[i*3] ==0 && (int)tmpArr[i*3+1]==0 && (int)tmpArr[i*3+2]==0 )
+	dataWithAlpha[i*4+3]=0;
+	else
+	dataWithAlpha[i*4+3]=250;
     }
 
 
