@@ -28,12 +28,18 @@ void setShipTexture(Game *g){
     glBindTexture(GL_TEXTURE_2D, shipTexture);
     glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
     glBegin(GL_TRIANGLES);
-    glVertex2f(-12.0f, -10.0f); glTexCoord2f(0.2f, 0.2f);
-    glVertex2f(  0.0f,  20.0f); glTexCoord2f(0.2f, 0.2f);
-    glVertex2f(  0.0f,  -6.0f); glTexCoord2f(0.5f, 0.8f);
-    glVertex2f(  0.0f,  -6.0f); glTexCoord2f(0.5f, 0.8f);
-    glVertex2f(  0.0f,  20.0f); glTexCoord2f(0.2f, 0.2f);
-    glVertex2f( 12.0f, -10.0f); glTexCoord2f(0.8f, 0.8f);
+/*    glTexCoord2f(0, 0.5); glVertex2f( 0, 20);
+    glTexCoord2f(1, 0); glVertex2f( -20, -20);
+    glTexCoord2f(1, 0); glVertex2f( 20, -20);
+    glTexCoord2f(0, 1); glVertex2f( 0, -20);
+*/
+    glVertex2f(  -20.0f,-10.0f); glTexCoord2f(0.2f, 0.2f);
+    glVertex2f(0.0f,  20.0f); glTexCoord2f(0.5f, 0.8f);
+    glVertex2f(0.0f,  -6.0f);  glTexCoord2f(0.5f, 0.5f);
+
+    glVertex2f(0.0f,   -6.0f); glTexCoord2f(0.5f, 0.5f);
+    glVertex2f(0.0f,   20.0f); glTexCoord2f(0.5f, 0.8f);
+    glVertex2f(20.0f,  -10.0f); glTexCoord2f(0.9f, 0.2f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnd();
 }
