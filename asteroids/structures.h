@@ -18,7 +18,9 @@ typedef float Vec[3];
 typedef Flt Matrix[4][4];
 extern int xres;
 extern int yres;
-
+extern Display *dpy;
+extern Window win;
+extern XEvent *e;
 
 struct Ship {
 	Vec dir;
@@ -91,6 +93,8 @@ struct Game {
 	unsigned long int score;
 	struct timespec bulletTimer;
 	struct timespec asteroidTimer;
+	struct timespec mouseThrustTimer;
+	bool mouseThrustOn;
 	Game() {
 		ahead = NULL;
 		bhead = NULL;
@@ -102,6 +106,7 @@ struct Game {
 		bulletsFired = 0.0;
 		bulletsHit = 0.0;
 		accuracy = 0.0;
+		mouseThrustOn = false;
 	}
 };
 

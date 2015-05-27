@@ -6,6 +6,8 @@
 #include "structures.h"
 #include <FMOD/fmod.h>
 #include <FMOD/wincompat.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 #include "fmod.h"
 #include "ppm.h"
 
@@ -58,3 +60,28 @@ void draw_background(void)
     glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
     glEnd();
 }
+
+void set_mouse_position(int x, int y)
+{
+    XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+}
+
+/*void show_mouse_cursor(const int onoff)
+{
+    if (onoff) {
+	XUndefineCursor(dpy, win);
+	return;
+    }
+    Pixmap blank;
+    XColor dummy;
+    char data[1] = {0};
+    Cursor cursor;
+    blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
+    if (blank == None)
+	std::cout << "error: out of memory." << std::endl;
+    cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+    XFreePixmap(dpy, blank);
+    XDefineCursor(dpy, win, cursor);
+}*/
+
+void check_mouse(XEvent *e, Game *game);
