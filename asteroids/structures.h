@@ -1,5 +1,25 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
+
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+#include <unistd.h>
+#include <ctime>
+#include <cmath>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include "solidSphere.h"
+extern "C" {
+#include "fonts.h"
+}
+
+#include <FMOD/fmod.h>
+#include <FMOD/wincompat.h>
+#include "fmod.h"
+
+
 #define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define random(a) (rand()%a)

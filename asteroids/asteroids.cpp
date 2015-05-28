@@ -23,13 +23,13 @@
 #include "drewC.cpp"
 #include "ajS.cpp"
 #include "michaelW.cpp"
-#include "joannT.cpp"
+#include "joannT.h"
 extern "C" {
 #include "fonts.h"
 }
 
-#include <FMOD/fmod.h>
-#include <FMOD/wincompat.h>
+//#include <FMOD/fmod.h>
+//#include <FMOD/wincompat.h>
 #include "fmod.h"
 
 using namespace std;
@@ -76,7 +76,7 @@ void cleanupXWindows(void);
 void check_resize(XEvent *e);
 int check_keys(XEvent *e);
 void init(Game *g);
-void init_sounds(void);
+extern void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 bool endGame(Game *game);
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     set_mouse_position(100,100);
     int done=0;
 
-    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glBindTexture(GL_TEXTURE_2D, bgTxtr);
     glBegin(GL_QUADS);
     glColor4f(1.0f,0.0f,0.0f,1);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
@@ -337,7 +337,7 @@ void normalize(Vec v) {
     v[1] *= len;
 }
 
-/*void check_mouse(XEvent *e, Game *g)
+void check_mouse(XEvent *e, Game *g)
 {
     static int savex = 0;
     static int savey = 0;
@@ -375,7 +375,7 @@ void normalize(Vec v) {
 	savex = 100;
 	savey = 100;
     }
-}*/
+}
 
 int check_keys(XEvent *e)
 {

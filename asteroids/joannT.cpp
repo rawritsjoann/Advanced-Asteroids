@@ -4,15 +4,17 @@
  * Spring 2015        */
 
 #include "structures.h"
-#include <FMOD/fmod.h>
-#include <FMOD/wincompat.h>
+#include <cstdio>
+//#include <FMOD/fmod.h>
+//#include <FMOD/wincompat.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include "fmod.h"
 #include "ppm.h"
+#include "joannT.h"
 
-Ppmimage *bgImage = NULL;
-GLuint bgTexture;
+extern Ppmimage *bgImg;
+extern GLuint bgTxtr;
 
 void init_sounds(void)
 {
@@ -39,19 +41,19 @@ void play_music(int a) {
 
 void load_background(void)
 {
-    bgImage = ppm6GetImage((char*)"./images/AA_background.ppm");
-    glGenTextures(1, &bgTexture);
-    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    bgImg = ppm6GetImage((char*)"./images/AA_background.ppm");
+    glGenTextures(1, &bgTxtr);
+    glBindTexture(GL_TEXTURE_2D, bgTxtr);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
-	    bgImage->width, bgImage->height,
-	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
+	    bgImg->width, bgImg->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, bgImg->data);
 }
 
 void draw_background(void)
 {
-    glBindTexture(GL_TEXTURE_2D, bgTexture);
+    glBindTexture(GL_TEXTURE_2D, bgTxtr);
     glBegin(GL_QUADS);
     glColor3f(1.0f,0.0f,0.0f);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
@@ -66,7 +68,7 @@ void set_mouse_position(int x, int y)
     XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
-/*void show_mouse_cursor(const int onoff)
+void show_mouse_cursor(const int onoff)
 {
     if (onoff) {
 	XUndefineCursor(dpy, win);
@@ -82,6 +84,7 @@ void set_mouse_position(int x, int y)
     cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
     XFreePixmap(dpy, blank);
     XDefineCursor(dpy, win, cursor);
-}*/
+}
 
-void check_mouse(XEvent *e, Game *game);
+//void check_mouse(XEvent *e, Game *game);
+
